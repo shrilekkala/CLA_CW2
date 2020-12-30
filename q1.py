@@ -77,10 +77,22 @@ def LU_solve(c, d, m, b):
 
     return A, L, U, x
 
-c = 20
-d = 66
-m = 100
+c = 2
+d = 6
+m = 7
 b = np.random.rand(m)
 A, L, U, x = LU_solve(c, d, m, b)
 A@x
 b
+
+
+def LU_inplace(c, d, m):
+    A1 = triA(c, d, m)
+
+    A = A1.copy()
+
+    for k in range(m-1):
+        A[k+1, k] = A[k+1, k] / A[k, k]
+        A[k+1, k+1] = A[k+1, k+1] - np.outer(A[k+1, k], A[k, k+1])
+    
+    return(A)
