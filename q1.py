@@ -65,11 +65,8 @@ def LU_solve(c, d, m, b):
         L[k+1, k] = U[k+1, k] / U[k, k]
         U[k+1, k:k+2] -= L[k+1, k] * U[k, k:k+2]
 
-        if k == 0:
-            y[0] = b[0] / L[0, 0]
-        else:
-            j = k-1
-            y[k] = (b[k] - L[k, j] * y[j]) / L[k, k]
+        j = k
+        y[k+1] = (b[k+1] - L[k+1, j] * y[j]) / L[k+1, k+1]
 
     x = np.zeros(m)
     x[m-1] = y[m-1] / U[m-1, m-1]
@@ -80,8 +77,10 @@ def LU_solve(c, d, m, b):
 
     return A, L, U, x
 
-c = 5
-d = 6
-m = 10
+c = 20
+d = 66
+m = 100
 b = np.random.rand(m)
 A, L, U, x = LU_solve(c, d, m, b)
+A@x
+b
