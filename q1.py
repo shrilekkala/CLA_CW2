@@ -41,9 +41,47 @@ def back_sub(U, y):
 
     return x   
 
-A, L, U = LUtri(3,4,5)
-b = np.random.rand(5)
-x = forward_sub(L, b)
-x2 = back_sub(U, b)
-U @ x2
+c = 5
+d = 6
+m = 10
+A, L, U = LUtri(c,d,m)
+b = np.random.rand(m)
+x1 = forward_sub(L, b)
+
+x = back_sub(U, x1)
+A@x
 b
+
+def LU_solve(c, d, m, b):
+    A = triA(c, d, m)
+
+    U = A.copy()
+    L = np.eye(m)
+
+    y = np.zeros(m)
+    y[0] = b[0] / L[0, 0]
+
+    for k in range(m-1):
+        L[k+1, k] = U[k+1, k] / U[k, k]
+        U[k+1, k:k+2] -= L[k+1, k] * U[k, k:k+2]
+
+        if k == 0:
+            y[0] = b[0] / L[0, 0]
+        else:
+            j = k-1
+            y[k] = (b[k] - L[k, j] * y[j]) / L[k, k]
+
+    x = np.zeros(m)
+    x[m-1] = y[m-1] / U[m-1, m-1]
+
+    for k in range(m-2, -1, -1):
+        j = k+1
+        x[k] = (y[k] - U[k, j] * x[j]) / U[k, k]
+
+    return A, L, U, x
+
+c = 5
+d = 6
+m = 10
+b = np.random.rand(m)
+A, L, U, x = LU_solve(c, d, m, b)
