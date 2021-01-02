@@ -37,7 +37,7 @@ def test_LUsolve_a(m):
 Test the LU solve algorithm from Q1 part d)
 '''
 @pytest.mark.parametrize('m', [12, 25, 231, 500, 845])
-def test_LUsolve_b(m):
+def test_LUsolve_d(m):
     np.random.seed(8564*m)
     c = np.random.randint(m)
     d = np.random.randint(m)
