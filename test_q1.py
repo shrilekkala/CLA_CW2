@@ -10,8 +10,12 @@ Test the 3 algorithms from Q1 part a)
 @pytest.mark.parametrize('m', [5, 11, 24, 102, 606])
 def test_LUsolve_a(m):
     np.random.seed(5601*m)
-    c = np.random.randint(m)
-    d = np.random.randint(m)
+    
+    # Generate distinct, non-zero random c and d
+    c = np.random.randint(1, m**2)
+    d = np.random.randint(1, m**2)
+    while d == c:
+        d = np.random.randint(m)
 
     # create matrix A using the paramteters
     A = q1.triA(c, d, m)
@@ -39,9 +43,13 @@ Test the LU solve algorithm from Q1 part d)
 @pytest.mark.parametrize('m', [12, 25, 231, 500, 845])
 def test_LUsolve_d(m):
     np.random.seed(8564*m)
-    c = np.random.randint(m)
-    d = np.random.randint(m)
 
+    # Generate distinct, non-zero random c and d
+    c = np.random.randint(1, m**2)
+    d = np.random.randint(1, m**2)
+    while d == c:
+        d = np.random.randint(m)
+    
     # create matrix A using the paramteters
     A = q1.triA(c, d, m)
 
