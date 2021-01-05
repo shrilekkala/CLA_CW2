@@ -9,7 +9,7 @@ import numpy as np
 Test the solve_algorithm function from Q2 part e)
 '''
 @pytest.mark.parametrize('m', [14, 20, 135, 500, 935])
-def test_LUsolve_d(m):
+def test_solver_alg(m):
     np.random.seed(4501*m)
 
     # Generate non-zero random c1
