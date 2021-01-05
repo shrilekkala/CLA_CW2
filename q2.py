@@ -1,5 +1,7 @@
 import numpy as np
+import time
 import q1
+from cla_utils import exercises7
 
 def getBC(c1, L, U):
     """
@@ -60,3 +62,26 @@ def solver_alg(c1, b):
     x  = y - p
 
     return x
+
+def compare_algs(m):
+    c1 = 20
+
+    # construct matrix A
+    A = q1.triA(1+2*c1, -c1, m)
+    A[0, m-1] = -c1
+    A[m-1, 0] = -c1
+
+    # create a random vector b
+    b = np.random.rand(m)
+
+    start_t = time.time()
+    # obtain x1 via the above solver_alg function
+    x1 = solver_alg(c1, b)
+    print("Time taken for solver_alg : " + str(time.time() - start_t))
+
+    start_t = time.time()
+    # obtain x2 via the solve_LUP function from exercises 7
+    x2 = exercises7.solve_LUP(A.copy(), b)
+    print("Time taken for solve_LUP  : " + str(time.time() - start_t))
+
+    return
