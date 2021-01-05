@@ -1,7 +1,19 @@
 import numpy as np
 import q1
 
-def getBC(u1, v1):
+def getBC(c1, L, U):
+    """
+    Given parameter c1 and matrices L, U as in Q2 d),
+    Obtain vectors u3, u4, v3, v4.
+    Construct and return matrices B and C
+    """
+    m, _ = L.shape
+    Im = np.eye(m)
+    
+    # Construct vectors u1 and v1
+    u1 = -c1 * Im[:, 0]
+    v1 = Im[:,-1]
+
     # Obtain u3 and u4 via forward substitution with L
     u3 = q1.forward_sub(L, u1)
     u4 = q1.forward_sub(L, v1)
@@ -17,7 +29,7 @@ def getBC(u1, v1):
     return B, C
 
 
-def solve_algorithm(c1, b):
+def solver_alg(c1, b):
     """
     Algorithm to solve Ax = b in Q2 f)
 
@@ -27,18 +39,13 @@ def solve_algorithm(c1, b):
     :return x: an m dimensional vector solution
     """
     m = b.size
-    Im = np.eye(m)
     I2 = np.eye(2)
-
-    # Construct vectors u1 and v1
-    u1 = -c1 * Im[:, 0]
-    v1 = Im[:,-1]
-
-    # Construct the required matrices B and C
-    B, C = getBC(u1, v1)
 
     # Solve Ty = b via LU the factorisation algorithm and obtain LU
     y, L, U = q1.LU_solve(1+2*c1, -c1, m, b, True)
+
+    # Construct the required matrices B and C
+    B, C = getBC(c1, L, U)
 
     # Solve Lr = b via forward substitution
     r = q1.forward_sub(L, b)
