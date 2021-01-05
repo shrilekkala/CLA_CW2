@@ -61,12 +61,15 @@ def back_sub(U, y):
     return x   
 
 "Part d)"
-def LU_solve(c, d, m, b):
+def LU_solve(c, d, m, b, returnLU = False):
     """
     Algorithm 7 from the coursework
     Given a vector b and a parametrisation of matrix A using c, d and m
     Solves Ax = b for vector x
-    Returns x
+
+    :return x: the m dimensional vector solution
+    if returnLU = true:
+    :return L, U : the L, U matrices of the factorisation of A
     """
     # Initialise matrices L,U and vectors x, y
     U = triA(c, d, m)
@@ -90,4 +93,7 @@ def LU_solve(c, d, m, b):
         j = k+1
         x[k] = (y[k] - U[k, j] * x[j]) / U[k, k]
 
-    return x
+    if returnLU:
+        return x, L, U
+    else:
+        return x
