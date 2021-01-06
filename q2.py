@@ -2,7 +2,27 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import q1
-from cla_utils import exercises7
+from cla_utils.exercises6 import LU_inplace
+from cla_utils.exercises7 import solve_LUP
+
+"""
+Question 2 c)
+"""
+def Q2c(c1, m):
+    """
+    Given parameters c1 and m, construct A
+    Run the LU factorisation algorithm from exercises 6
+    To observe what is happening at each step as required in Q2c
+    """
+    # construct A
+    A = q1.triA(1+2*c1, -c1, m)
+    A[0, m-1] = -c1
+    A[m-1, 0] = -c1
+
+    # Apply the LU factorisation algorithm
+    exercises6.LU_inplace(A, printsteps = True)
+
+    return
 
 def getBC(c1, L, U):
     """
@@ -91,7 +111,6 @@ def compare_algs(m):
     return
 
 
-
 def get_f(u, w, delx):
     """
     Gets the required vector f given u, w and delta x
@@ -170,10 +189,7 @@ def u_func(x,t):
 M = 500
 delt = 1/1000
 n = 251
-#u = np.zeros(M)
-#w = np.sin(x_vals * 2 * np.pi) / (2 * np.pi)
 
 compute_timesteps(M, delt, n, u_func, w_func)
-
 plt.show()
 
