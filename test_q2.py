@@ -15,7 +15,7 @@ def test_solver_alg(m):
     # Generate non-zero random c1
     c1 = np.random.randint(1, m**2)
 
-    # construct matrix T and vectors u1 and v1
+    # construct matrix A
     A = q1.triA(1+2*c1, -c1, m)
     A[0, m-1] = -c1
     A[m-1, 0] = -c1
