@@ -24,6 +24,9 @@ def Q2c(c1, m):
 
     return
 
+"""
+Question 2 f)
+"""
 def getBC(c1, L, U):
     """
     Given parameter c1 and matrices L, U as in Q2 d),
@@ -50,7 +53,6 @@ def getBC(c1, L, U):
     C = np.vstack((v3, v4))
 
     return B, C
-
 
 def solver_alg(c1, b):
     """
@@ -110,7 +112,9 @@ def compare_algs(m):
 
     return
 
-
+"""
+Question 2 g)
+"""
 def get_f(u, w, delx):
     """
     Gets the required vector f given u, w and delta x
