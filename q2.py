@@ -131,15 +131,13 @@ def compute_timesteps(M, delt, n, u_func, w_func):
 
     :param M: constant to determine grid width
     :param delt: delta t, the time difference between time steps
-    :param u: initial condition u(x,0)
-    :param w: initial condition w(x,0)
     :param n: number of time steps to be computed
     :param u_func: the actual function u(x,t) for comparison
     :param w_func: the actual function w(x,t) for comparison
 
     :return x: an m dimensional vector solution
     """ 
-    # obtain grid width
+    # obtain grid width delta x
     delx = 1/M
 
     # obtain constant C1
@@ -167,10 +165,11 @@ def compute_timesteps(M, delt, n, u_func, w_func):
         actual_u_vals = u_func(x_range, k*delt) 
 
         # plot the discretisation and the actual function every plot_step timesteps
-        plot_step = 25
+        plot_step = 50
         if k % plot_step == 0:
-            plt.plot(x_vals, new_w)
-            plt.plot(x_range, actual_w_vals, ls='--')
+            color = next(plt.gca()._get_lines.prop_cycler)['color']
+            plt.plot(x_vals, new_u, color = color)
+            plt.plot(x_range, actual_u_vals, ls=':', color = "black")
 
         # update u and w
         u = new_u
@@ -178,9 +177,9 @@ def compute_timesteps(M, delt, n, u_func, w_func):
 
         #print(np.linalg.norm(new_w - actual_w_vals))
     
-    plt.title("Plot of w(x,t) against x for different time steps")
+    plt.title("Plot of u(x,t) against x for different timesteps.   M = " + str(M)+", Delta t = "+str(delt))
     plt.xlabel("x")
-    plt.ylabel("w(x,t)")
+    plt.ylabel("u(x,t)") 
 
 def w_func(x,t):
     w_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * np.cos(2 * np.pi * t)
@@ -190,10 +189,16 @@ def u_func(x,t):
     u_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * (np.sin(2 * np.pi * t) / (2 * np.pi))
     return u_vals
 
-M = 500
-delt = 1/1000
-n = 251
+def test2g(M, delt, n):
+    compute_timesteps(M, delt, n, u_func, w_func)
+    #plt.show()
 
-compute_timesteps(M, delt, n, u_func, w_func)
+"""
+Uncomment below to run compute timesteps of the discretisation of the function from the report
+"""
+test2g(500, 1/1000, 251)
+plt.savefig('2.g.2.eps', format='eps')
 plt.show()
-
+test2g(10, 1/1000, 251)
+plt.savefig('2.g.1.eps', format='eps')
+plt.show()
