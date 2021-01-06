@@ -191,14 +191,10 @@ def u_func(x,t):
 
 def test2g(M, delt, n):
     compute_timesteps(M, delt, n, u_func, w_func)
-    #plt.show()
+    plt.show()
 
 """
 Uncomment below to run compute timesteps of the discretisation of the function from the report
 """
-test2g(500, 1/1000, 251)
-plt.savefig('2.g.2.eps', format='eps')
-plt.show()
-test2g(10, 1/1000, 251)
-plt.savefig('2.g.1.eps', format='eps')
-plt.show()
+# test2g(500, 1/1000, 251)
+# test2g(10, 1/1000, 251)
