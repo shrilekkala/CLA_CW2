@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from cla_utils.exercises8 import hessenberg
 
 def qr_factor_tri(A):
@@ -129,7 +130,7 @@ def Q3e(A):
     # loop from m to 2 backwards
     for j in range(m, 1, -1):
         # call the QR algorithm until termination
-        A, T_array = qr_alg_tri(A, 1000, return_T_array = True)
+        A, T_array = qr_alg_tri(A, 5000, return_T_array = True)
 
         # update the arrays
         total_T_array = np.concatenate((total_T_array, T_array))
@@ -146,4 +147,7 @@ def Q3e(A):
 A = getA()
 A1 = A.copy()
 e1, t1 = Q3e(A1)
-np.linalg.eig
+e2 = np.linalg.eig(A)[0]
+
+#plt.plot(t1[2:])
+#plt.show()
