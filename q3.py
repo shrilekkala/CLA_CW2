@@ -11,7 +11,7 @@ def triA(c, d, m):
     D = np.diag(np.ones(m-1) * d, 1)
     A += D + D.T
     return A
-
+# Q3 b) #
 def householder_tri(A, kmax=None):
     """
     Given a real mxn matrix A, find the reduction to upper triangular matrix R
