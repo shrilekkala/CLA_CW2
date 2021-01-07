@@ -182,29 +182,46 @@ def getC():
     C = C + C.T
     return C
 
-# Store the matrices used for plotting
-matrices_dict = {"A": getA(), "B": getB(), "C": getC()}
-
 def plots_Q3(ApplyShift = False):
     """
     Run the function Submatrix_QR_Alg() on matrices A, B and C and plot the results
     
     :param shift: if True, use the shifted QR algorithm
     """
+    # String for plot titles
+    if ApplyShift:
+        textstr = "Shifted QR"
+    else:
+        textstr = "Non-Shifted QR"
+
+    # For each matrix in the dictionary, apply Submatrix_QR_Alg() and plot the results
     for mat in matrices_dict:
         t_array = Submatrix_QR_Alg(matrices_dict[mat].copy(), ApplyShift)[1]
         plt.semilogy(t_array)
-        plt.title("Semilog plot of the array of |T_m,m-1| values, for matrix: " + mat)
+        plt.title("Semilog plot of the|T_m,m-1| values ("+ textstr +"), for matrix: " + mat)
         plt.axhline(y=1.0e-12, color='r', linestyle=':')
         plt.xlabel("Iteration Number")
         plt.ylabel("|T_m,m-1|")
         plt.show()
 
+        # Comparison to the pure_QR algorithm from exercises9
         A, its = pure_QR(matrices_dict[mat].copy(), 5000, 1.0e-12, its=True)
         print("Matrix: " + mat)
         print("Total number of iterations until termination [Algorithm from Q3 e] : " + str(len(t_array)))
         print("Total number of iterations until termination [pureQR Algorithm]    : " + str(its))
 
-""" Generate plots in 3e) and 3f) """
+def getG():
+    """
+    Construct the matrix required in Q3 g)
+    """
+    D = np.diag(np.arange(1, 16))
+    O = np.ones((15,15))
+    G = D + O
+    return G
+
+# Store the matrices used for plotting
+matrices_dict = {"A": getA(), "B": getB(), "C": getC(), "G": getG()}
+
+""" Generate plots in 3e), 3f) and 3g) """
 plots_Q3()
 plots_Q3(ApplyShift = True)
