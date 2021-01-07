@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cla_utils.exercises8 import hessenberg
+from cla_utils.exercises9 import pure_QR
+from q1 import triA
 
 def qr_factor_tri(A):
     """
@@ -39,12 +41,13 @@ def qr_factor_tri(A):
         
     return A, V
 
-def qr_alg_tri(A, maxit, return_T_array = False):
+def qr_alg_tri(A, maxit, shift = False, return_T_array = False):
     """
     For matrix A, apply the QR algorithm till the stopping criteria and return the result.
 
     :param A: an mxm symmetric, tridiagonal matrix
     :param maxit: the maximum number of iterations
+    :param shift: if True, apply the shifted QR algorithm
     :param return_T_array: logical
 
     :return Ak: the result
@@ -59,6 +62,15 @@ def qr_alg_tri(A, maxit, return_T_array = False):
     Tlist = list()
 
     while True:
+        if shift:
+            # Calculate the shift mu
+            a = A[m-1, m-1]
+            b = A[m-1, m-2]
+            d = (A[m-2,m-2] - A[m-1,m-1])/2
+            mu = a - (np.sign(d) * (b**2))/(np.abs(d) + np.sqrt(d**2 + b**2))
+            # Apply the shift
+            Ak = Ak - mu * np.eye(m)
+
         # Obtain R and V from the QR factorisation algorithm
         R, V = qr_factor_tri(Ak)
         
@@ -69,15 +81,19 @@ def qr_alg_tri(A, maxit, return_T_array = False):
                 RQ[k:k+2,] -= 2 * np.outer(V[:,k], V[:,k]) @ RQ[k:k+2,]
             else:
                 RQ[k:k+2,] -= 2 * RQ[k:k+2,]
-
-        # Update variables
         Ak = RQ.T
+
+        if shift:
+            # Shift back again
+            Ak = Ak + mu * np.eye(m)
+
+        # Update the required variables
         its += 1
         Tlist.append(np.abs(Ak[m-1, m-2]))
 
-        # check stopping criteria
+        # Check stopping criteria
         if np.abs(Tlist[-1]) < 1.0e-12:
-            print("Stopped after " + str(its) + " iterations")
+            # print("Stopped after " + str(its) + " iterations")
             break
         elif its+1 > maxit:
             print("Maximum number of iterations reached")
@@ -110,13 +126,15 @@ def Q3d():
     print(np.linalg.eig(A1)[0])
     return
 
-# Q3d()
+""" Apply program to matrix A """
+### Q3d()
 
-def Q3e(A):
+def Submatrix_QR_Alg(A, ApplyShift = False):
     """
-    For matrix A, apply the steps outlined in Q3e)
+    For matrix A, apply the steps outlined in Q3e) (or with a shift for Q3f))
 
     :param A: an mxm symmetric, real matrix
+    :param shift: if True, apply the shifted QR algorithm
     """
     # reduce A to Hessenberg form
     hessenberg(A)
@@ -130,7 +148,7 @@ def Q3e(A):
     # loop from m to 2 backwards
     for j in range(m, 1, -1):
         # call the QR algorithm until termination
-        A, T_array = qr_alg_tri(A, 5000, return_T_array = True)
+        A, T_array = qr_alg_tri(A, 5000, return_T_array = True, shift = ApplyShift)
 
         # update the arrays
         total_T_array = np.concatenate((total_T_array, T_array))
@@ -144,10 +162,49 @@ def Q3e(A):
 
     return evals, total_T_array
 
-A = getA()
-A1 = A.copy()
-e1, t1 = Q3e(A1)
-e2 = np.linalg.eig(A)[0]
+def getB():
+    """
+    Create a random, symmetric, tridiagonal 5x5 matrix B
+    """
+    np.random.seed(3456)
+    d1 = np.random.rand(5)
+    d2 = np.random.rand(4)
+    B = np.diag(d1) + np.diag(d2,1) + np.diag(d2,-1)
+    
+    return B
 
-#plt.plot(t1[2:])
-#plt.show()
+def getC():
+    """
+    Create a random, symmetric 5x5 matrix C 
+    """
+    np.random.seed(3456)
+    C = np.random.randn(5,5)
+    C = C + C.T
+    return C
+
+# Store the matrices used for plotting
+matrices_dict = {"A": getA(), "B": getB(), "C": getC()}
+
+def plots_Q3(ApplyShift = False):
+    """
+    Run the function Submatrix_QR_Alg() on matrices A, B and C and plot the results
+    
+    :param shift: if True, use the shifted QR algorithm
+    """
+    for mat in matrices_dict:
+        t_array = Submatrix_QR_Alg(matrices_dict[mat].copy(), ApplyShift)[1]
+        plt.semilogy(t_array)
+        plt.title("Semilog plot of the array of |T_m,m-1| values, for matrix: " + mat)
+        plt.axhline(y=1.0e-12, color='r', linestyle=':')
+        plt.xlabel("Iteration Number")
+        plt.ylabel("|T_m,m-1|")
+        plt.show()
+
+        A, its = pure_QR(matrices_dict[mat].copy(), 5000, 1.0e-12, its=True)
+        print("Matrix: " + mat)
+        print("Total number of iterations until termination [Algorithm from Q3 e] : " + str(len(t_array)))
+        print("Total number of iterations until termination [pureQR Algorithm]    : " + str(its))
+
+""" Generate plots in 3e) and 3f) """
+plots_Q3()
+plots_Q3(ApplyShift = True)
