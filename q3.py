@@ -38,31 +38,24 @@ def qr_factor_tri(A):
         
     return A, V
 
-def getA():
-    """
-    Construct the matrix A required in Q3 d)
-    """
-    A = np.zeros((5,5))
-    A[:,0] = np.arange(3,8)
-    for i in range(0, 4):
-        A[:,i+1] = A[:,i] + 1
-    A = np.reciprocal(A)
-    return A
-
-def qr_alg_tri(A, maxit):
+def qr_alg_tri(A, maxit, return_Tarray = False):
     """
     For matrix A, apply the QR algorithm till the stopping criteria and return the result.
 
     :param A: an mxm symmetric, tridiagonal matrix
     :param maxit: the maximum number of iterations
+    :param return_Tarray: logical
 
     :return Ak: the result
+    :return Tarray: the array of values of Tm,m-1 at each iteration
     """
     Ak = A
     m, _ = A.shape
 
     # counter
     its = 0
+    # list storing values of T_m,m-1 at each iteration
+    Tlist = list()
 
     while True:
         # Obtain R and V from the QR factorisation algorithm
@@ -76,16 +69,49 @@ def qr_alg_tri(A, maxit):
             else:
                 RQ[k:k+2,] -= 2 * RQ[k:k+2,]
 
-        # Update A and iteration counter
+        # Update variables
         Ak = RQ.T
         its += 1
+        Tlist.append(np.abs(Ak[m-1, m-2]))
 
         # check stopping criteria
-        if np.abs(Ak[m-1, m-2]) < 1.0e-12:
+        if np.abs(Tlist[-1]) < 1.0e-12:
             print("Stopped after " + str(its) + " iterations")
             break
         elif its+1 > maxit:
             print("Maximum number of iterations reached")
             break
     
-    return Ak
+    if return_Tarray:
+        return Ak, np.array(Tlist)
+    else:
+        return Ak
+
+def getA():
+    """
+    Construct the matrix A required in Q3 d)
+    """
+    A = np.zeros((5,5))
+    A[:,0] = np.arange(3,8)
+    for i in range(0, 4):
+        A[:,i+1] = A[:,i] + 1
+    A = np.reciprocal(A)
+    return A
+
+def Q3d():
+    """
+    Function to investigate the qr_alg_tri applied to matrix A in Q3 d)
+    """
+    A1 = getA()
+    A2 = A1.copy()
+    hessenberg(A2)
+    print(qr_alg_tri(A2, 1000))
+    print(np.linalg.eig(A1)[0])
+    return
+
+# Q3d()
+
+
+
+
+
