@@ -1,6 +1,7 @@
 import numpy as np
+from cla_utils.exercises8 import hessenberg
 
-def qr_alg_tri(A):
+def qr_factor_tri(A):
     """
     Implements the algorithm from Q2c)
     Reduces A to R (where A = QR) via householder transformations
@@ -36,3 +37,52 @@ def qr_alg_tri(A):
             V[:, k] = v_k
         
     return A, V
+
+def getA():
+    A = np.zeros((5,5))
+    A[:,0] = np.arange(3,8)
+    for i in range(0, 4):
+        A[:,i+1] = A[:,i] + 1
+    A = np.reciprocal(A)
+    return A
+
+def qr_alg_tri(A, maxit):
+    """
+    For matrix A, apply the QR algorithm till the stopping criteria and return the result.
+
+    :param A: an mxm symmetric, tridiagonal matrix
+    :param maxit: the maximum number of iterations
+
+    :return Ak: the result
+    """
+    Ak = A.copy()
+    m, _ = A.shape
+
+    # counter
+    its = 0
+
+    while True:
+        # Obtain R and V from the QR factorisation algorithm
+        R, V = qr_factor_tri(Ak)
+        
+        # Find RQ transpose via implicit multplication
+        RQ = R.T
+        for k in range(0, m):
+            if k != m-1:
+                RQ[k:k+2,] -= 2 * np.outer(V[:,k], V[:,k]) @ RQ[k:k+2,]
+            else:
+                RQ[k:k+2,] -= 2 * RQ[k:k+2,]
+
+        # Update A and iteration counter
+        Ak = RQ.T
+        its += 1
+
+        # check stopping criteria
+        if np.abs(Ak[m-1, m-2]) < 1.0e-12:
+            print("Stopped after " + str(its) + " iterations")
+            break
+        elif its+1 > maxit:
+            print("Maximum number of iterations reached")
+            break
+    
+    return Ak
