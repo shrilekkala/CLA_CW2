@@ -38,13 +38,13 @@ def qr_factor_tri(A):
         
     return A, V
 
-def qr_alg_tri(A, maxit, return_Tarray = False):
+def qr_alg_tri(A, maxit, return_T_array = False):
     """
     For matrix A, apply the QR algorithm till the stopping criteria and return the result.
 
     :param A: an mxm symmetric, tridiagonal matrix
     :param maxit: the maximum number of iterations
-    :param return_Tarray: logical
+    :param return_T_array: logical
 
     :return Ak: the result
     :return Tarray: the array of values of Tm,m-1 at each iteration
@@ -82,7 +82,7 @@ def qr_alg_tri(A, maxit, return_Tarray = False):
             print("Maximum number of iterations reached")
             break
     
-    if return_Tarray:
+    if return_T_array:
         return Ak, np.array(Tlist)
     else:
         return Ak
@@ -111,7 +111,39 @@ def Q3d():
 
 # Q3d()
 
+def Q3e(A):
+    """
+    For matrix A, apply the steps outlined in Q3e)
 
+    :param A: an mxm symmetric, real matrix
+    """
+    # reduce A to Hessenberg form
+    hessenberg(A)
 
+    m, _ = A.shape
 
+    # create an array for the eigenvalues and for the concatenated T_arrays
+    evals = np.zeros(m)
+    total_T_array = np.array([])
 
+    # loop from m to 2 backwards
+    for j in range(m, 1, -1):
+        # call the QR algorithm until termination
+        A, T_array = qr_alg_tri(A, 1000, return_T_array = True)
+
+        # update the arrays
+        total_T_array = np.concatenate((total_T_array, T_array))
+        evals[m-j] = A[j-1, j-1]
+
+        # update the tri-diagonal matrix A
+        A = A[:j-1, :j-1]
+
+    # add the final eigenvalue
+    evals[m-1] = A
+
+    return evals, total_T_array
+
+A = getA()
+A1 = A.copy()
+e1, t1 = Q3e(A1)
+np.linalg.eig
