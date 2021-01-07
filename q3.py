@@ -39,6 +39,9 @@ def qr_factor_tri(A):
     return A, V
 
 def getA():
+    """
+    Construct the matrix A required in Q3 d)
+    """
     A = np.zeros((5,5))
     A[:,0] = np.arange(3,8)
     for i in range(0, 4):
@@ -55,7 +58,7 @@ def qr_alg_tri(A, maxit):
 
     :return Ak: the result
     """
-    Ak = A.copy()
+    Ak = A
     m, _ = A.shape
 
     # counter
