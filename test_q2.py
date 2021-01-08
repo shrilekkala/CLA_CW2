@@ -30,3 +30,8 @@ def test_solver_alg(m):
 
     # Check that the the correct x is obtained
     assert(np.linalg.norm(err) < 1.0e-6)
+
+
+if __name__ == '__main__':
+    import sys
+    pytest.main(sys.argv)
