@@ -1,5 +1,8 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from cla_utils.exercises5 import solve_R
+from scipy.sparse import csgraph
+from scipy.linalg import solve_triangular
 
 def block_diag(A,B):
     """
@@ -156,3 +159,57 @@ def GMRES(A, b, apply_pc, maxit, tol, x0=None, return_residual_norms=False, retu
         return x, nits, r
     else:
         return x, nits 
+
+"""
+for c in range(1, 10):
+    M = c*U
+    evals = np.linalg.eigvals(solve_triangular(M, A))
+    #plt.scatter(np.real(evals),np.imag(evals))
+    #plt.show()
+    print(evals)
+    print(np.abs(1-evals))
+"""
+
+m = 1000
+#S = np.random.randn(m,m)
+#S = S+S.T
+S = np.random.randint(0,m,(m,m))
+S = np.diag(np.diag(S))+np.triu(S,1)+np.triu(S,1).T
+#S = np.diag(np.arange(15)+1) + np.diag(3*np.arange(14),1)+ np.diag(3*np.arange(14),-1)
+
+L = csgraph.laplacian(S)
+
+I = np.eye(m)
+A = I + L
+
+U = np.triu(A)
+
+c = 1
+M = c*U
+#plt.scatter(np.real(evals),np.imag(evals))
+#plt.show()
+evals = np.linalg.eigvals(solve_triangular(M, A))
+print(evals)
+print(np.abs(1-evals))
+c1 = np.max(np.abs(1-evals))
+c1
+
+b = np.random.randn(m)
+
+def apply_pc_M(x):
+    x_tilde = solve_R(M, x)
+    return x_tilde
+
+def apply_pc_I(x):
+    return x
+
+if c1 < 1:
+    x1, nits1 = GMRES(A, b, apply_pc_I, maxit=1000, tol=1.0e-3)
+    x2, nits2 = GMRES(A, b, apply_pc_M, maxit=1000, tol=1.0e-3)
+
+np.linalg.norm(I - solve_triangular(M, A), ord = 2)
+c1
+if c1 < 1:
+    nits1   
+    nits2
+
