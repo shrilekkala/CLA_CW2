@@ -4,6 +4,55 @@ from cla_utils.exercises8 import hessenberg
 from cla_utils.exercises9 import pure_QR
 from q1 import triA
 
+"""
+Matrices required for Question 3
+"""
+def getG():
+    """
+    Construct the matrix required in Q3 g)
+    """
+    D = np.diag(np.arange(1, 16))
+    O = np.ones((15,15))
+    G = D + O
+    return G
+
+def getA():
+    """
+    Construct the matrix A required in Q3 d)
+    """
+    A = np.zeros((5,5))
+    A[:,0] = np.arange(3,8)
+    for i in range(0, 4):
+        A[:,i+1] = A[:,i] + 1
+    A = np.reciprocal(A)
+    return A
+
+def getB():
+    """
+    Create a random, symmetric, tridiagonal 5x5 matrix B
+    """
+    np.random.seed(3456)
+    d1 = np.random.rand(5)
+    d2 = np.random.rand(4)
+    B = np.diag(d1) + np.diag(d2,1) + np.diag(d2,-1)
+    
+    return B
+
+def getC():
+    """
+    Create a random, symmetric 5x5 matrix C 
+    """
+    np.random.seed(3456)
+    C = np.random.randn(5,5)
+    C = C + C.T
+    return C
+
+# Store the matrices used for plotting
+matrices_dict = {"A": getA(), "B": getB(), "C": getC(), "G": getG()}
+
+"""
+Question 3 c)
+"""
 def qr_factor_tri(A):
     """
     Implements the algorithm from Q2c)
@@ -41,6 +90,10 @@ def qr_factor_tri(A):
         
     return A, V
 
+
+"""
+Question 3 d)
+"""
 def qr_alg_tri(A, maxit, shift = False, return_T_array = False):
     """
     For matrix A, apply the QR algorithm till the stopping criteria and return the result.
@@ -104,17 +157,6 @@ def qr_alg_tri(A, maxit, shift = False, return_T_array = False):
     else:
         return Ak
 
-def getA():
-    """
-    Construct the matrix A required in Q3 d)
-    """
-    A = np.zeros((5,5))
-    A[:,0] = np.arange(3,8)
-    for i in range(0, 4):
-        A[:,i+1] = A[:,i] + 1
-    A = np.reciprocal(A)
-    return A
-
 def Q3d():
     """
     Function to investigate the qr_alg_tri applied to matrix A in Q3 d)
@@ -126,9 +168,10 @@ def Q3d():
     print(np.linalg.eig(A1)[0])
     return
 
-""" Apply program to matrix A """
-### Q3d()
 
+"""
+Question 3 e), f) and g)
+"""
 def Submatrix_QR_Alg(A, ApplyShift = False):
     """
     For matrix A, apply the steps outlined in Q3e) (or with a shift for Q3f))
@@ -162,26 +205,6 @@ def Submatrix_QR_Alg(A, ApplyShift = False):
 
     return evals, total_T_array
 
-def getB():
-    """
-    Create a random, symmetric, tridiagonal 5x5 matrix B
-    """
-    np.random.seed(3456)
-    d1 = np.random.rand(5)
-    d2 = np.random.rand(4)
-    B = np.diag(d1) + np.diag(d2,1) + np.diag(d2,-1)
-    
-    return B
-
-def getC():
-    """
-    Create a random, symmetric 5x5 matrix C 
-    """
-    np.random.seed(3456)
-    C = np.random.randn(5,5)
-    C = C + C.T
-    return C
-
 def plots_Q3(ApplyShift = False):
     """
     Run the function Submatrix_QR_Alg() on matrices A, B and C and plot the results
@@ -190,7 +213,7 @@ def plots_Q3(ApplyShift = False):
     """
     # String for plot titles
     if ApplyShift:
-        textstr = "Shifted QR"
+        textstr = "    Shifted QR"
     else:
         textstr = "Non-Shifted QR"
 
@@ -207,21 +230,17 @@ def plots_Q3(ApplyShift = False):
         # Comparison to the pure_QR algorithm from exercises9
         A, its = pure_QR(matrices_dict[mat].copy(), 5000, 1.0e-12, its=True)
         print("Matrix: " + mat)
-        print("Total number of iterations until termination [Algorithm from Q3 e] : " + str(len(t_array)))
-        print("Total number of iterations until termination [pureQR Algorithm]    : " + str(its))
+        print("Total number of iterations until termination ["+ textstr + " Algorithm from Q3] : " + str(len(t_array)))
+        print("Total number of iterations until termination [pureQR Algorithm]                 : " + str(its))
 
-def getG():
-    """
-    Construct the matrix required in Q3 g)
-    """
-    D = np.diag(np.arange(1, 16))
-    O = np.ones((15,15))
-    G = D + O
-    return G
+"""
+Uncomment the below lines to obtain the results from the report
+"""
 
-# Store the matrices used for plotting
-matrices_dict = {"A": getA(), "B": getB(), "C": getC(), "G": getG()}
+""" Apply program to matrix A """
+# Q3d()
 
 """ Generate plots in 3e), 3f) and 3g) """
-plots_Q3()
-plots_Q3(ApplyShift = True)
+# plots_Q3()
+# plots_Q3(ApplyShift = True)
+

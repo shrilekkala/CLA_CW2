@@ -12,7 +12,9 @@ def triA(c, d, m):
     A += D + D.T
     return A
 
-"Part a)"
+"""
+Question 1 a)
+"""
 def LUtri(c, d, m):
     """
     Algorithm 4 from the coursework
@@ -60,7 +62,9 @@ def back_sub(U, y):
 
     return x   
 
-"Part d)"
+"""
+Question 1 d)
+"""
 def LU_solve(c, d, m, b, returnLU = False):
     """
     Algorithm 7 from the coursework
