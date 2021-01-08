@@ -36,7 +36,7 @@ def test_qr_factor_tri(m):
 ''' 
 Test the qr_alg_tri function from Q2 part d)
 '''
-@pytest.mark.parametrize('m', [14, 20, 135, 175, 201])
+@pytest.mark.parametrize('m', [14, 20, 55, 126, 201])
 def test_qr_alg_tri(m):
     np.random.seed(6601*m)
 
@@ -51,15 +51,14 @@ def test_qr_alg_tri(m):
     # Check it is still symmetric
     assert(np.linalg.norm(Ak - Ak.T) < 1.0e-4)
 
-    # Check that the m, m-1 element is of appropriate size
-    assert(Ak[m-1,m-2] < 1.0e-12)
-
     # Check its still tridiagonal
     assert(np.linalg.norm(Ak[np.tril_indices(m, -2)])/m**2 < 1.0e-5)
 
     # Check for conservation of trace
     assert(np.abs(np.trace(A) - np.trace(Ak)) < 1.0e-6)
 
+    # Check that the m, m-1 element is of appropriate size
+    assert(Ak[m-1,m-2] < 1.0e-12)
 
 ''' 
 Test the Submatrix_QR_Alg() function from Q3 part e)
@@ -75,7 +74,7 @@ def test_Submatrix_QR_Alg(m):
     # Obtain the eigenvalues of A
     evals1 = np.linalg.eigvals(A)
 
-    # Obtain the eigenvalues of A from the function Q3e()
+    # Obtain the eigenvalues of A from the function from Q3e()
     evals2 = q3.Submatrix_QR_Alg(A)[0]
 
     # Sort the arrays into increasing order
@@ -88,7 +87,7 @@ def test_Submatrix_QR_Alg(m):
 ''' 
 Test the shifted qr_alg_tri function from Q2 part f)
 '''
-@pytest.mark.parametrize('m', [14, 20, 135, 175, 201])
+@pytest.mark.parametrize('m', [14, 20, 55, 126, 201])
 def test_shifted_qr_alg_tri(m):
     np.random.seed(6601*m)
 
@@ -111,3 +110,8 @@ def test_shifted_qr_alg_tri(m):
 
     # Check for conservation of trace
     assert(np.abs(np.trace(A) - np.trace(Ak)) < 1.0e-6)
+
+
+if __name__ == '__main__':
+    import sys
+    pytest.main(sys.argv)
