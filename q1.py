@@ -49,7 +49,7 @@ def forward_sub(L, b):
 def back_sub(U, y):
     """
     Algorithm 6 from the coursework
-    Solves Ux=y via forward substitution given U and y
+    Solves Ux=y via back substitution given U and y
     Returns x
     """
     m, _ = U.shape
