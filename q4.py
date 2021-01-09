@@ -170,46 +170,79 @@ for c in range(1, 10):
     print(np.abs(1-evals))
 """
 
-m = 1000
+def investigate_GMRES(L, c):
+    m, _ = L.shape
+    I = np.eye(m)
+    A = I + L
+    e = np.linalg.eigvals(A)
+    #e = np.sort(e)
+    plt.scatter(e,1+np.ones(len(e)),marker = 'x')
+    plt.title("A evals")
+    plt.show()
+
+    U = np.triu(A)
+
+    #c = 5
+    M = c*U
+    e = np.linalg.eigvals(M)
+
+    evals = np.linalg.eigvals(solve_triangular(M, A))
+    plt.scatter(np.real(evals),np.imag(evals), marker='x')
+    plt.title("Minv A evals")
+    plt.show()
+
+    #print(evals)
+    #print(np.abs(1-evals))
+    c11 = np.max(np.abs(1-evals))
+    c1 = np.linalg.norm(I - solve_triangular(M, A), ord = 2)
+
+    b = np.random.randn(m)
+
+    def apply_pc_M(x):
+        x_tilde = solve_R(M, x)
+        return x_tilde
+
+    def apply_pc_I(x):
+        return x
+
+    x1, nits1, rrn1, rr1 = GMRES(A, b, apply_pc_I, maxit=1000, tol=1.0e-9, return_residual_norms=True, return_residuals=True)
+    x2, nits2, rrn2, rr2 = GMRES(A, b, apply_pc_M, maxit=1000, tol=1.0e-9, return_residual_norms=True, return_residuals=True)
+
+    k=rrn2[0]
+    xvals = np.arange(len(rrn2))
+    x_range = np.linspace(0,xvals[-1],200)
+    plt.plot(xvals,rrn2, ls='--')
+    #plt.plot(xvals,rrn1, ls='--')
+    plt.plot(x_range, k*c1**(x_range))
+    plt.show()
+
+    plt.semilogy(rrn2)
+    plt.semilogy(x_range, k*c1**(x_range))
+    plt.show()
+
+    err1=np.linalg.norm(A@x1 - b)
+    err2=np.linalg.norm(A@x2 - b)
+
+    print("err1 is : " + str(err1))
+    print("err2 is : " + str(err2))
+
+    print("c1 is   : " + str(c1))
+    print("nits1 is: " + str(nits1))
+    print("nits2 is: " + str(nits2))
+
+    return
+
+
+m = 100
+np.random.seed(55)
 #S = np.random.randn(m,m)
 #S = S+S.T
-S = np.random.randint(0,m,(m,m))
-S = np.diag(np.diag(S))+np.triu(S,1)+np.triu(S,1).T
+#S = np.random.randint(0,m,(m,m))
+#S = S+S.T
+#S = np.diag(np.diag(S))+np.triu(S,1)+np.triu(S,1).T
 #S = np.diag(np.arange(15)+1) + np.diag(3*np.arange(14),1)+ np.diag(3*np.arange(14),-1)
+S = np.arange(1,m+1) * np.arange(1,m+1)[:, np.newaxis]
+S = S / (m**2)
 
 L = csgraph.laplacian(S)
-
-I = np.eye(m)
-A = I + L
-
-U = np.triu(A)
-
-c = 1
-M = c*U
-#plt.scatter(np.real(evals),np.imag(evals))
-#plt.show()
-evals = np.linalg.eigvals(solve_triangular(M, A))
-print(evals)
-print(np.abs(1-evals))
-c1 = np.max(np.abs(1-evals))
-c1
-
-b = np.random.randn(m)
-
-def apply_pc_M(x):
-    x_tilde = solve_R(M, x)
-    return x_tilde
-
-def apply_pc_I(x):
-    return x
-
-if c1 < 1:
-    x1, nits1 = GMRES(A, b, apply_pc_I, maxit=1000, tol=1.0e-3)
-    x2, nits2 = GMRES(A, b, apply_pc_M, maxit=1000, tol=1.0e-3)
-
-np.linalg.norm(I - solve_triangular(M, A), ord = 2)
-c1
-if c1 < 1:
-    nits1   
-    nits2
-
+investigate_GMRES(L, 1)
