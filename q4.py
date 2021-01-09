@@ -160,89 +160,81 @@ def GMRES(A, b, apply_pc, maxit, tol, x0=None, return_residual_norms=False, retu
     else:
         return x, nits 
 
-"""
-for c in range(1, 10):
-    M = c*U
-    evals = np.linalg.eigvals(solve_triangular(M, A))
-    #plt.scatter(np.real(evals),np.imag(evals))
-    #plt.show()
-    print(evals)
-    print(np.abs(1-evals))
-"""
 
-def investigate_GMRES(L, c):
+def investigate_GMRES(L, c, get_plots = False):
+    """
+    Function that investigates preconditioned vs non-preconditioned GMRES and the rate of convergence.
+
+    :param L: an mxm graph Laplacian
+    :param c: constant used as in 4d) where M = cU
+    """
     m, _ = L.shape
+
+    # Construct the required matrices
     I = np.eye(m)
     A = I + L
-    e = np.linalg.eigvals(A)
-    #e = np.sort(e)
-    plt.scatter(e,1+np.ones(len(e)),marker = 'x')
-    plt.title("A evals")
-    plt.show()
-
     U = np.triu(A)
-
-    #c = 5
     M = c*U
-    e = np.linalg.eigvals(M)
 
+    # Check if equation (8) and (9) from the question are satisfied
     evals = np.linalg.eigvals(solve_triangular(M, A))
-    plt.scatter(np.real(evals),np.imag(evals), marker='x')
-    plt.title("Minv A evals")
-    plt.show()
-
-    #print(evals)
-    #print(np.abs(1-evals))
-    c11 = np.max(np.abs(1-evals))
-    c1 = np.linalg.norm(I - solve_triangular(M, A), ord = 2)
-
+    c1_a = np.linalg.norm(I - solve_triangular(M, A), ord = 2)
+    c1_b = np.max(np.abs(1-evals))
+    print("The norm of (I - M^(-1) A) is                               : " + str(c1_a))
+    print("The maximum of |1-lambda| for all eigenvalues of M^(-1) A is: " + str(c1_b))
+    print("---------------")
+    # create random vector b
     b = np.random.randn(m)
 
+    # create an apply_pc function for general GMRES
+    def apply_pc_I(x):
+        return x
+    
+    # create an apply_pc function for the preconditioned GMRES
     def apply_pc_M(x):
         x_tilde = solve_R(M, x)
         return x_tilde
 
-    def apply_pc_I(x):
-        return x
+    # perform GMRES (general and preconditioned)
+    x1, nits1, res_norms1 = GMRES(A, b, apply_pc_I, maxit=1000, tol=1.0e-12, return_residual_norms=True)
+    x2, nits2, res_norms2 = GMRES(A, b, apply_pc_M, maxit=1000, tol=1.0e-12, return_residual_norms=True)
 
-    x1, nits1, rrn1, rr1 = GMRES(A, b, apply_pc_I, maxit=1000, tol=1.0e-9, return_residual_norms=True, return_residuals=True)
-    x2, nits2, rrn2, rr2 = GMRES(A, b, apply_pc_M, maxit=1000, tol=1.0e-9, return_residual_norms=True, return_residuals=True)
+    # Plot the residual norms and the upper bound
+    if get_plots:
+        x_range = np.linspace(0,len(res_norms2)-1,200)
+        plt.plot(res_norms2, ls='--', label="Preconditioned GMRES")
+        plt.plot(x_range, res_norms2[0]*c1**(x_range), label="Upper Bound")
+        plt.title("Residual Norms against N (iterations)")
+        plt.xlabel("N")
+        plt.ylabel("Residual Norm")
+        plt.legend()
+        plt.show()
 
-    k=rrn2[0]
-    xvals = np.arange(len(rrn2))
-    x_range = np.linspace(0,xvals[-1],200)
-    plt.plot(xvals,rrn2, ls='--')
-    #plt.plot(xvals,rrn1, ls='--')
-    plt.plot(x_range, k*c1**(x_range))
-    plt.show()
-
-    plt.semilogy(rrn2)
-    plt.semilogy(x_range, k*c1**(x_range))
-    plt.show()
-
+    # Calculate the error
     err1=np.linalg.norm(A@x1 - b)
     err2=np.linalg.norm(A@x2 - b)
 
-    print("err1 is : " + str(err1))
-    print("err2 is : " + str(err2))
-
-    print("c1 is   : " + str(c1))
-    print("nits1 is: " + str(nits1))
-    print("nits2 is: " + str(nits2))
-
+    print("The error for general GMRES is       : " + str(err1))
+    print("The error for preconditioned GMRES is: " + str(err2))
+    print("---------------")
+    print("Number of iterations for general GMRES is       : " + str(nits1))
+    print("Number of iterations for preconditioned GMRES is: " + str(nits2))
+    print("---------------")
     return
 
+def get_L():
+    """
+    Creates an appropriate input matrix S
+    And returns L, the graph Lapalcian matrix
+    """
+    m = 1000
+    np.random.seed(2468*m)
+    S = np.random.randn(m,m)
+    S = np.arange(1,m+1) * np.arange(1,m+1)[:, np.newaxis]
+    S = S / (m**2)
+    S = S/100
+    
+    L = csgraph.laplacian(S)
+    return L
 
-m = 100
-np.random.seed(55)
-#S = np.random.randn(m,m)
-#S = S+S.T
-#S = np.random.randint(0,m,(m,m))
-#S = S+S.T
-#S = np.diag(np.diag(S))+np.triu(S,1)+np.triu(S,1).T
-#S = np.diag(np.arange(15)+1) + np.diag(3*np.arange(14),1)+ np.diag(3*np.arange(14),-1)
-S = np.arange(1,m+1) * np.arange(1,m+1)[:, np.newaxis]
-S = S / (m**2)
-
-L = csgraph.laplacian(S)
-investigate_GMRES(L, 1)
+investigate_GMRES(get_L(), 2, get_plots = True)
