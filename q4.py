@@ -1,9 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cla_utils.exercises5 import solve_R
+from cla_utils.exercises6 import solve_U
 from scipy.sparse import csgraph
-from scipy.linalg import solve_triangular
 
+"""
+Question 4 a)
+"""
 def block_diag(A,B):
     """
     Function that takes square matrices or numbers A, B as input
@@ -161,6 +164,9 @@ def GMRES(A, b, apply_pc, maxit, tol, x0=None, return_residual_norms=False, retu
         return x, nits 
 
 
+"""
+Question 4 d)
+"""
 def investigate_GMRES(L, c, get_plots = False):
     """
     Function that investigates preconditioned vs non-preconditioned GMRES and the rate of convergence.
@@ -177,12 +183,14 @@ def investigate_GMRES(L, c, get_plots = False):
     M = c*U
 
     # Check if equation (8) and (9) from the question are satisfied
-    evals = np.linalg.eigvals(solve_triangular(M, A))
-    c1_a = np.linalg.norm(I - solve_triangular(M, A), ord = 2)
+    MinvA = solve_U(M, A)
+    evals = np.linalg.eigvals(MinvA)
+    c1_a = np.linalg.norm(I - MinvA, ord = 2)
     c1_b = np.max(np.abs(1-evals))
+    print("---------------")
     print("The norm of (I - M^(-1) A) is                               : " + str(c1_a))
     print("The maximum of |1-lambda| for all eigenvalues of M^(-1) A is: " + str(c1_b))
-    print("---------------")
+    
     # create random vector b
     b = np.random.randn(m)
 
@@ -203,23 +211,25 @@ def investigate_GMRES(L, c, get_plots = False):
     if get_plots:
         x_range = np.linspace(0,len(res_norms2)-1,200)
         plt.plot(res_norms2, ls='--', label="Preconditioned GMRES")
-        plt.plot(x_range, res_norms2[0]*c1**(x_range), label="Upper Bound")
+        plt.plot(x_range, res_norms2[0]*c1_a**(x_range), label="Upper Bound")
         plt.title("Residual Norms against N (iterations)")
         plt.xlabel("N")
         plt.ylabel("Residual Norm")
         plt.legend()
-        plt.show()
 
     # Calculate the error
     err1=np.linalg.norm(A@x1 - b)
     err2=np.linalg.norm(A@x2 - b)
 
+    print("---------------")
     print("The error for general GMRES is       : " + str(err1))
     print("The error for preconditioned GMRES is: " + str(err2))
     print("---------------")
     print("Number of iterations for general GMRES is       : " + str(nits1))
     print("Number of iterations for preconditioned GMRES is: " + str(nits2))
     print("---------------")
+    plt.savefig('4d.eps', format='eps')
+    plt.show()
     return
 
 def get_L():
@@ -228,8 +238,6 @@ def get_L():
     And returns L, the graph Lapalcian matrix
     """
     m = 1000
-    np.random.seed(2468*m)
-    S = np.random.randn(m,m)
     S = np.arange(1,m+1) * np.arange(1,m+1)[:, np.newaxis]
     S = S / (m**2)
     S = S/100
@@ -237,4 +245,11 @@ def get_L():
     L = csgraph.laplacian(S)
     return L
 
-investigate_GMRES(get_L(), 2, get_plots = True)
+
+"""
+Uncomment the below lines to obtain the results from the report
+"""
+
+""" Generate results in 4d) """
+# np.random.seed(1024)
+# investigate_GMRES(get_L(), 2, get_plots = True)
