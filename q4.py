@@ -228,7 +228,6 @@ def investigate_GMRES(L, c, get_plots = False):
     print("Number of iterations for general GMRES is       : " + str(nits1))
     print("Number of iterations for preconditioned GMRES is: " + str(nits2))
     print("---------------")
-    plt.savefig('4d.eps', format='eps')
     plt.show()
     return
 
