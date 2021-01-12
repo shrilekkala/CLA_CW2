@@ -131,9 +131,9 @@ def qr_alg_tri(A, maxit, shift = False, return_T_array = False):
         RQ = R.T
         for k in range(0, m):
             if k != m-1:
-                RQ[k:k+2,] -= 2 * np.outer(V[:,k], V[:,k]) @ RQ[k:k+2,]
+                RQ[k:k+2,:] -= 2 * np.outer(V[:,k], V[:,k]) @ RQ[k:k+2,:]
             else:
-                RQ[k:k+2,] -= 2 * RQ[k:k+2,]
+                RQ[k:k+2,:] -= 2 * RQ[k:k+2,:]
         Ak = RQ.T
 
         if shift:
