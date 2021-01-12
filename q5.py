@@ -4,58 +4,67 @@ import matplotlib.pyplot as plt
 """
 Question 5 f)
 """
-
-# construct matrix V
-def getV(N, alpha):
-    x = np.arange(N)
-    y = alpha ** (-x/N)
-    z = np.zeros((N, N), dtype = 'complex')
-    for k in range(N):
-        z[:, k] = np.exp(1j * 2 * np.pi * x * k / N)
-        z[:, k] = np.multiply(y, z[:, k])
-    
-    return z
-
-def same_block_diag(A, k):
+def getD(M, N, alpha, inverse = False):
     """
-    Function that creates a block diagonal matrix (which has k blocks each being A)
+    Function that constructs the block diagonal matrix D or D inverse from 5d)
     """
-    m, _ = A.shape
-    
-    # construct the block diagonal matrix
-    B = np.zeros((k*m,k*m))
-    for i in range(k):
-        B[i*m:(i+1)*m, i*m:(i+1)*m] = A
-
-    return B
-
-
-# construct the diagonal matrix used in 5d)
-def getD(M, N, alpha):
+    # construct the coefficients of the blocks
     x = np.arange(N)
     diag = N * (alpha ** (-x/N))
     D = np.eye(2*M*N)
 
+    # construct the matrix D or D inverse as required
     for i in range(N):
-        D[i * 2*M : (i+1) * 2*M, i * 2*M : (i+1) * 2*M] *= diag[i]
+        if inverse:
+            D[i * 2*M : (i+1) * 2*M, i * 2*M : (i+1) * 2*M] /= diag[i]
+        else:
+            D[i * 2*M : (i+1) * 2*M, i * 2*M : (i+1) * 2*M] *= diag[i]
 
     return D
 
 
-# algorithm for solving [V(x)I]U
 def step3(M, N, U, alpha):
+    """
+    Algorithm for step 3 Q5e)
+    Constructs and returns [V(x)I]U as in 5 d)
+    """
+    # get block-diagonal matrix D
     D = getD(M, N, alpha)
 
+    # reshape U
     Uprime = U.reshape(N, 2*M).T
+    
+    # Apply the IFFT algorithm and reshape back
     Uifft = np.fft.ifft(Uprime).reshape(2*M*N, order='F')
     
+    # obtain [V(x)I]U by matrix multiplication
     VIU = D @ Uifft
 
     return VIU
 
+def step1(M, N, R, alpha):
+    """
+    Algorithm for step 1 Q5e)
+    Constructs and returns [V^{-1}(x)I]R as in 5 d)
+    """    
+    # get block-diagonal matrix D inverse
+    Dinv = getD(M, N, alpha, inverse = True)
+
+    # obtain D^{-1} R by matrix multiplication
+    DinvR = Dinv @ R
+
+    # reshape as required
+    DinvR = DinvR.reshape((N, 2*M)).T
+
+    # Apply the IFFT algorithm and reshape back
+    VinvIR = np.fft.fft(DinvR).reshape(2*M*N, order='F')
+    
+    return VinvIR
+
+
+"""
 M = 2
 N = 3
 alpha = 0.1
 U = np.arange(2*M*N)+1
-Uprime = U.reshape(N, 2*M).T
-Uifft = np.fft.ifft(Uprime).reshape(2*M*N, order='F')
+"""
