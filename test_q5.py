@@ -9,13 +9,17 @@ def getV(N, alpha):
     Function that constructs the matrix V of eigenvectors as in 5 c)
     """
     x = np.arange(N)
+    V = np.zeros((N, N), dtype = 'complex')
+
+    # obtain the coefficients of the blocks
     y = alpha ** (-x/N)
-    z = np.zeros((N, N), dtype = 'complex')
+
+    # construct V column by column
     for k in range(N):
-        z[:, k] = np.exp(1j * 2 * np.pi * x * k / N)
-        z[:, k] = np.multiply(y, z[:, k])
+        V[:, k] = np.exp(1j * 2 * np.pi * x * k / N)
+        V[:, k] = np.multiply(y, V[:, k])
     
-    return z
+    return V
 
 ''' 
 Test the step3 function
