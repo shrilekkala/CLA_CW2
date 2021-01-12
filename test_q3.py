@@ -30,7 +30,7 @@ def test_qr_factor_tri(m):
     # Find the error in the factorisation
     err = A - Q@R
 
-    # Check that the the correct Q and R are obtained
+    # Check that the correct Q and R are obtained
     assert(np.linalg.norm(err) < 1.0e-6)
 
 ''' 
