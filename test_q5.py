@@ -38,3 +38,25 @@ def test_step3(M, N, alpha):
     # Check that the error is within a threshold
     err = VIU - VIU2
     assert(np.linalg.norm(err) < 1.0e-6)
+
+''' 
+Test the step1 function
+'''
+@pytest.mark.parametrize('M, N, alpha', [(2, 3, 0.1), (5, 5, 0.2), (8, 10, 0.15)])
+def test_step1(M, N, alpha):
+    np.random.seed(5678*M)
+
+    # Create random U
+    R = np.random.randn(2*M*N)
+
+    # First obtain (V^{-1}(x)I) U via the step1 function
+    VIinvR = q5.step1(M, N, R, alpha)
+
+    # Obtain (V^{-1}(x)I) U directly by constructing V and I and using np.kron
+    V = getV(N, alpha)
+    I = np.eye(2*M)
+    VIinvR2 = np.kron(np.linalg.inv(V), I) @ R
+
+    # Check that the error is within a threshold
+    err = VIinvR - VIinvR2
+    assert(np.linalg.norm(err) < 1.0e-6)
