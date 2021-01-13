@@ -103,14 +103,86 @@ def step2(d1, d2, delt, delx, rk):
     pq = np.concatenate((pk, qk))
 
     return pq
-
-
-
-
+ 
 """
-M = 2
+---------------
+"""
+def getB(delt, delx, M):
+    """
+    Function that constructs the matrix B of eigenvectors as in 5 a)
+    """
+    # construct the non-zero blocks of B
+    B_12 = np.diag(-np.ones(M)* delt)
+    B_21 = getB_21(delt, delx, M)
+
+    # combine the blocks as required
+    B = np.zeros((2*M,2*M))
+    B[M:,:M] = B_21
+    B[:M,M:] = B_12
+    return B
+
+def getC1a(M, alpha):
+    D1 = np.diag(np.ones(M))
+    D2 = np.diag(-np.ones(M-1), -1)
+    D1[0, M-1] = -alpha
+    C1a = D1 + D2
+    return C1a
+
+M = 4
 N = 3
 alpha = 0.1
-U = np.arange(2*M*N)+1
-"""
+delx = 0.5
+delt = 0.1
 
+
+U = np.arange(2*M*N)+1
+
+# Check step 17 works
+
+# LHS matrix
+C1a = getC1a(N, alpha)
+C2a = C1a.copy()/2
+I = np.eye(2*M)
+B = getB(delt, delx, M)
+Mat = np.kron(C1a, I) + np.kron(C2a, B)
+
+# RHS vector
+r = np.random.randn(2*M)
+pq = U[-2*M:]
+topR = r + alpha * (-I + B/2) @ pq
+R = np.zeros(2*M*N)
+R[:2*M] = topR
+
+# get x via numpy functions
+x = np.linalg.solve(Mat, R)
+
+# Step 1
+Rhat = step1(M, N, R, alpha)
+
+# Step 2
+x_range = np.arange(N)
+diag = N * (alpha ** (-x_range/N))
+
+lambdas = 1 - alpha**(1/N) * np.exp((2*(N-1)/N)*np.pi*1j*x_range)
+D1 = np.diag(lambdas)
+D2 = np.diag(lambdas/2)
+
+Uhat = np.zeros(2*M*N, dtype = 'complex')
+
+for k in range(N):
+    print(k)
+    rk = Rhat[k * (2*M) : (k + 1) * (2*M)]
+    print(rk)
+
+    d1 = D1[k,k]
+    d2 = D2[k,k]
+
+    newpq = step2(d1, d2, delt, delx, rk)
+    Uhat[k * (2*M) : (k + 1) * (2*M)] = newpq
+
+LM = np.kron(D1, I) + np.kron(D2, B)
+Rv = Rhat.copy()
+x1 = np.linalg.solve(LM, Rv)
+
+# Step 3
+Uk1 = step3(M, N, x1, alpha)
