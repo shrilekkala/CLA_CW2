@@ -77,7 +77,7 @@ def step1(M, N, R, alpha):
 
 def step2(d1, d2, delt, delx, rk):
     """
-    Algorithm for step 2 Q5e)
+    Algorithm for step 2 Q5e) for one time slice
     Constructs and returns (pk^T, qk^T), i.e. the kth time slice of U hat
     """    
     M = int(rk.shape[0] / 2)
@@ -156,33 +156,55 @@ R[:2*M] = topR
 # get x via numpy functions
 x = np.linalg.solve(Mat, R)
 
-# Step 1
-Rhat = step1(M, N, R, alpha)
+def eq17(M, N, Uk, alpha, r):
+    """
+    Algorithm to compute U^(k+1) from U^k as in equation 17
+    
+    :param M: space steps
+    :param N: time steps
+    :param Uk: as in the question   
+    :param alpha: constant in corner of C_1^(alpha) and C_2^(alpha)
+    :param r: vector r from Q5a)
 
-# Step 2
-x_range = np.arange(N)
-diag = N * (alpha ** (-x_range/N))
+    :return Uk1: the solution to (17)
+    """
+    # Construct B and I
+    pq = Uk[-2*M:]
+    I = np.eye(2*M)
+    B = getB(delt, delx, M)
+    topR = r + alpha * (-I + B/2) @ pq
 
-lambdas = 1 - alpha**(1/N) * np.exp((2*(N-1)/N)*np.pi*1j*x_range)
-D1 = np.diag(lambdas)
-D2 = np.diag(lambdas/2)
+    # Construct R
+    R = np.zeros(2*M*N)
+    R[:2*M] = topR
 
-Uhat = np.zeros(2*M*N, dtype = 'complex')
+    # Apply Step 1
+    Rhat = step1(M, N, R, alpha)
 
-for k in range(N):
-    print(k)
-    rk = Rhat[k * (2*M) : (k + 1) * (2*M)]
-    print(rk)
+    # Apply Step 2
+    x_range = np.arange(N)
+    lambdas = 1 - alpha**(1/N) * np.exp((2*(N-1)/N)*np.pi*1j*x_range)
+    D1 = np.diag(lambdas)
+    D2 = np.diag(lambdas/2)
 
-    d1 = D1[k,k]
-    d2 = D2[k,k]
+    Uhat = np.zeros(2*M*N, dtype = 'complex')
 
-    newpq = step2(d1, d2, delt, delx, rk)
-    Uhat[k * (2*M) : (k + 1) * (2*M)] = newpq
+    # Loop through the time slices
+    for k in range(N):
+        rk = Rhat[k * (2*M) : (k + 1) * (2*M)]
 
-LM = np.kron(D1, I) + np.kron(D2, B)
-Rv = Rhat.copy()
-x1 = np.linalg.solve(LM, Rv)
+        d1 = D1[k,k]
+        d2 = D2[k,k]
 
-# Step 3
-Uk1 = step3(M, N, x1, alpha)
+        # Apply the step2 function
+        Uhat[k * (2*M) : (k + 1) * (2*M)] = step2(d1, d2, delt, delx, rk)
+
+    # Apply Step 3
+    Uk1 = step3(M, N, Uhat, alpha)
+
+    return Uk1
+
+U = np.arange(2*M*N)+1
+
+x2 = eq17(M, N, U, alpha, r)
+np.linalg.norm(Mat @ x2 - R)
