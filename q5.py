@@ -202,60 +202,82 @@ def U_solver_alg(U0, M, N, delx, delt, alpha, r):
     
     return Uk1, counter
 
-"""
-M = 4
-N = 3
-alpha = 0.01
-delx = 0.1
-delt = 0.1
-r = np.random.randn(2*M)
-
-U0 = np.zeros(2*M*N)
-Un, k = U_solver_alg(U0, M, N, delx, delt, alpha, r)
-"""
 def w_func(x,t):
+    """
+    The example function w(x,t) from the report
+    """
     w_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * np.cos(2 * np.pi * t)
     return w_vals
 
 def u_func(x,t):
+    """
+    The example function u(x,t) from the report
+    """
     u_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * (np.sin(2 * np.pi * t) / (2 * np.pi))
     return u_vals
 
-M = 10
-delx = 1/M
-delt = 1/1000
-N = 251
-alpha = 0.1
+def plot_timesteps(M, N, delx, delt, alpha, u_func, w_func):
+    """
+    Function that computes and plots a number of timesteps of the wave equation 
+        
+    :param M: number of space steps required
+    :param N: number of time steps required 
+    :param delx: space steps
+    :param delt: time steps   
+    :param alpha: constant in corner of C_1^(alpha) and C_2^(alpha)
+    :param u_func: the actual function u(x,t)
+    :param w_func: the actual function w(x,t)
+    """
+    # Generate evenly distributed x values at grid width
+    x_vals = (np.arange(M)+1) * delx
 
-# Initial Values at time 0
-x_vals = (np.arange(M)+1) * delx
-u0 = u_func(x_vals,0)
-w0 = w_func(x_vals,0)
+    # Get initial values at time 0
+    u0 = u_func(x_vals,0)
+    w0 = w_func(x_vals,0)
 
+    # Create the array r
+    r = np.zeros(2*M)
+    r[:M] = u0 + delt * w0 / 2
+    r[M] = w0[0] + (delt / (2*delx)) * (u0[-1] - 2*u0[0] + u0[1])
+    r[M+1:2*M-1] = w0[1:M-1] + (delt / (2*delx)) * (u0[0:M-2] - 2*u0[1:M-1] + u0[2:M])
+    r[2*M - 1] = w0[M-1] + (delt / (2*delx)) * (u0[-2] - 2*u0[-1] + u0[0])
 
-# Create array r
-r = np.zeros(2*M)
-r[:M] = u0 + delt * w0 / 2
-r[M] = w0[0] + (delt / (2*delx)) * (u0[-1] - 2*u0[0] + u0[1])
-r[M+1:2*M-1] = w0[1:M-1] + (delt / (2*delx)) * (u0[0:M-2] - 2*u0[1:M-1] + u0[2:M])
-r[2*M - 1] = w0[M-1] + (delt / (2*delx)) * (u0[-2] - 2*u0[-1] + u0[0])
+    # Set initial guess of U
+    U0 = np.zeros(2*M*N)
 
-# Initial Guess
-U0 = np.zeros(2*M*N)
-U, k = U_solver_alg(U0, M, N, delx, delt, alpha, r)
+    # Solve for the U from equation (13)
+    U, _ = U_solver_alg(U0, M, N, delx, delt, alpha, r)
 
-# Change U into a 2M x N matrix
-U = U.reshape(N, 2*M).T
-U = np.real(U)
+    # Convert U into a real 2M x N matrix
+    U = U.reshape(N, 2*M).T
+    U = np.real(U)
 
-x_range = np.linspace(x_vals[0],1,501)
+    # Generate evenly distributed x values for the actual solution
+    x_range = np.linspace(x_vals[0],1,501)
 
-for i in range(5):
-    k = 50*i
-    pk = U[:M, k]
-    color = next(plt.gca()._get_lines.prop_cycler)['color']
-    plt.plot(x_vals, pk, color = color)
-    actual_u_vals = u_func(x_range, k * delt) 
-    plt.plot(x_range, actual_u_vals, ls=':', color = "black")
-    # plt.show()
-plt.show()
+    # Loop through and select the solution at every 50 timesteps
+    for i in range(5):
+        k = 50*i
+
+        # Obtain the values of U at the timestep k * delt
+        pk = U[:M, k]
+
+        # Plot the numerical solution at this timestep
+        color = next(plt.gca()._get_lines.prop_cycler)['color']
+        plt.plot(x_vals, pk, color = color)
+
+        # Obtain and plot the exact solution at this timestep
+        actual_u_vals = u_func(x_range, k * delt) 
+        plt.plot(x_range, actual_u_vals, ls=':', color = "black")
+
+    plt.title("Plot of u(x,t) against x at every 50 timesteps.   M = " + str(M)+", Delta t = "+str(delt))
+    plt.xlabel("x")
+    plt.ylabel("u(x,t)") 
+    plt.show()
+    return()
+
+"""
+Uncomment below to run compute timesteps of the discretisation of the function from the report
+"""
+# plot_timesteps(10, 251, 1/10, 1/1000, 0.001, u_func, w_func)
+# plot_timesteps(20, 251, 1/20, 1/1000, 0.001, u_func, w_func)
