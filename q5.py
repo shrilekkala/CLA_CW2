@@ -213,3 +213,49 @@ r = np.random.randn(2*M)
 U0 = np.zeros(2*M*N)
 Un, k = U_solver_alg(U0, M, N, delx, delt, alpha, r)
 """
+def w_func(x,t):
+    w_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * np.cos(2 * np.pi * t)
+    return w_vals
+
+def u_func(x,t):
+    u_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * (np.sin(2 * np.pi * t) / (2 * np.pi))
+    return u_vals
+
+M = 10
+delx = 1/M
+delt = 1/1000
+N = 251
+alpha = 0.1
+
+# Initial Values at time 0
+x_vals = (np.arange(M)+1) * delx
+u0 = u_func(x_vals,0)
+w0 = w_func(x_vals,0)
+
+
+# Create array r
+r = np.zeros(2*M)
+r[:M] = u0 + delt * w0 / 2
+r[M] = w0[0] + (delt / (2*delx)) * (u0[-1] - 2*u0[0] + u0[1])
+r[M+1:2*M-1] = w0[1:M-1] + (delt / (2*delx)) * (u0[0:M-2] - 2*u0[1:M-1] + u0[2:M])
+r[2*M - 1] = w0[M-1] + (delt / (2*delx)) * (u0[-2] - 2*u0[-1] + u0[0])
+
+# Initial Guess
+U0 = np.zeros(2*M*N)
+U, k = U_solver_alg(U0, M, N, delx, delt, alpha, r)
+
+# Change U into a 2M x N matrix
+U = U.reshape(N, 2*M).T
+U = np.real(U)
+
+x_range = np.linspace(x_vals[0],1,501)
+
+for i in range(5):
+    k = 50*i
+    pk = U[:M, k]
+    color = next(plt.gca()._get_lines.prop_cycler)['color']
+    plt.plot(x_vals, pk, color = color)
+    actual_u_vals = u_func(x_range, k * delt) 
+    plt.plot(x_range, actual_u_vals, ls=':', color = "black")
+    # plt.show()
+plt.show()
