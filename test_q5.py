@@ -125,7 +125,7 @@ def test_eq17(M, N, alpha):
     delt = np.random.randint(1,10)/10
 
     # Create random vectors U^k and r
-    Uk = np.arange(2*M*N)+1
+    Uk = np.random.randn(2*M*N)
     r = np.random.randn(2*M)
 
     # Obtain U^(k+1) from the eq17 function
@@ -149,4 +149,42 @@ def test_eq17(M, N, alpha):
 
     # Check that the error is within a threshold
     err = x1 - x2
+    assert(np.linalg.norm(err) < 1.0e-6)
+
+''' 
+Test the whole algorithm against equation (13)
+'''
+@pytest.mark.parametrize('M, N, alpha', [(4, 3, 0.2), (10, 5, 0.1), (20, 15, 0.05)])
+def test_alg(M, N, alpha):
+    np.random.seed(2048*M)
+
+    # create random grid spacing for timesteps and spacesteps
+    delx = np.random.randint(1,10)/10
+    delt = np.random.randint(1,10)/10
+
+    # Create random vector r
+    r = np.random.randn(2*M)
+
+    # Create the vector U0 (the initial condition)
+    U0 = np.zeros(2*M*N, dtype = 'complex')
+
+    # Obtain the solution U via the U_solver_alg function
+    U, _ = q5.U_solver_alg(U0, M, N, delx, delt, alpha, r)
+
+    # Construct the matrix A from (13)
+    C1 = np.diag(np.ones(N)) + np.diag(-np.ones(N-1), -1)
+    C2 = (np.diag(np.ones(N)) + np.diag(np.ones(N-1), -1)) / 2
+    I = np.eye(2*M)
+    B = q5.getB(delt, delx, M)
+    A = np.kron(C1, I) + np.kron(C2, B)
+
+    # Construct the RHS vector from (13)
+    b = np.zeros(2*M*N)
+    b[:2*M] = r
+
+    # Obtain the solution U using numpy functions
+    U_np = np.linalg.solve(A, b)
+
+    # Check that the error is within a threshold
+    err = U - U_np
     assert(np.linalg.norm(err) < 1.0e-6)
