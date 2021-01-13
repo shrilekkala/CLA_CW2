@@ -21,21 +21,16 @@ def getV(N, alpha):
     
     return V
 
-# construct matrix B
-def getB(delt, delx, M):
+# construct matrix C_1^(alpha)
+def getC1a(M, alpha):
     """
-    Function that constructs the matrix B of eigenvectors as in 5 a)
+    Function that constructs the matrix C_1^(alpha) as in 5 b)
     """
-    # construct the non-zero blocks of B
-    B_12 = np.diag(-np.ones(M)* delt)
-    B_21 = q5.getB_21(delt, delx, M)
-
-    # combine the blocks as required
-    B = np.zeros((2*M,2*M))
-    B[M:,:M] = B_21
-    B[:M,M:] = B_12
-    return B
-
+    D1 = np.diag(np.ones(M))
+    D2 = np.diag(-np.ones(M-1), -1)
+    D1[0, M-1] = -alpha
+    C1a = D1 + D2
+    return C1a
 
 ''' 
 Test the step3 function
@@ -94,7 +89,7 @@ def test_step2(M, delt, delx):
     rk = np.random.randn(2*M)
 
     # Get B and I and form the matrix d1*I + d2*B
-    B = getB(delt, delx, M)
+    B = q5.getB(delt, delx, M)
     I = np.eye(2*M)
     Mat = d1*I + d2*B
 
@@ -108,3 +103,40 @@ def test_step2(M, delt, delx):
     err = pq1 - pq2
     assert(np.linalg.norm(err) < 1.0e-6)
 
+''' 
+Test the eq17 function
+'''
+@pytest.mark.parametrize('M, N, alpha', [(4, 3, 0.2), (10, 5, 0.5), (20, 15, 0.25)])
+def test_eq17(M, N, alpha):
+    np.random.seed(1066*M)
+
+    # create random grid spacing for timesteps and spacesteps
+    delx = np.random.randint(1,10)/10
+    delt = np.random.randint(1,10)/10
+
+    # Create random vectors U^k and r
+    Uk = np.arange(2*M*N)+1
+    r = np.random.randn(2*M)
+
+    # Obtain U^(k+1) from the eq17 function
+    x1 = q5.eq17(M, N, delx, delt, Uk, alpha, r)
+
+    # Construct the LHS matrix from (17)
+    C1a = getC1a(N, alpha)
+    C2a = C1a.copy()/2
+    I = np.eye(2*M)
+    B = q5.getB(delt, delx, M)
+    Mat = np.kron(C1a, I) + np.kron(C2a, B)
+
+    # Construct the RHS vector from (17)
+    pq = Uk[-2*M:]
+    topR = r + alpha * (-I + B/2) @ pq
+    R = np.zeros(2*M*N)
+    R[:2*M] = topR
+
+    # Obtain U^(k+1) using numpy functions
+    x2 = np.linalg.solve(Mat, R)
+
+    # Check that the error is within a threshold
+    err = x1 - x2
+    assert(np.linalg.norm(err) < 1.0e-6)
