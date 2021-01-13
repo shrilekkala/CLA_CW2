@@ -134,8 +134,6 @@ def compute_timesteps(M, delt, n, u_func, w_func):
     :param n: number of time steps to be computed
     :param u_func: the actual function u(x,t) for comparison
     :param w_func: the actual function w(x,t) for comparison
-
-    :return x: an m dimensional vector solution
     """ 
     # obtain grid width delta x
     delx = 1/M
@@ -182,10 +180,16 @@ def compute_timesteps(M, delt, n, u_func, w_func):
     plt.ylabel("u(x,t)") 
 
 def w_func(x,t):
+    """
+    The example function w(x,t) from the report
+    """
     w_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * np.cos(2 * np.pi * t)
     return w_vals
 
 def u_func(x,t):
+    """
+    The example function u(x,t) from the report
+    """
     u_vals = (np.sin(2 * np.pi * x) / (2 * np.pi)) * (np.sin(2 * np.pi * t) / (2 * np.pi))
     return u_vals
 
