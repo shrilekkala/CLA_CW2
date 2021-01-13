@@ -88,17 +88,20 @@ Test the step2 function
 def test_step2(M, delt, delx):
     np.random.seed(2468*M)
 
+    # Create random d1, d2 and vector rk
     d1 = np.random.randint(1,10)
     d2 = np.random.randint(1,10)
     rk = np.random.randn(2*M)
 
-    # Construct B
+    # Get B and I and form the matrix d1*I + d2*B
     B = getB(delt, delx, M)
     I = np.eye(2*M)
-    Mat = d1*I + d2*B
+    M = d1*I + d2*B
 
-    pq1 = np.linalg.solve(Mat, rk)
+    # Solve for the solution using numpy functions
+    pq1 = np.linalg.solve(M, rk)
 
+    # Solve for the solution using the step2 function
     pq2 = q5.step2(d1, d2, delt, delx, rk)
 
     # Check that the error is within a threshold
