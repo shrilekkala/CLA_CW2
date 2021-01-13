@@ -21,6 +21,22 @@ def getV(N, alpha):
     
     return V
 
+# construct matrix B
+def getB(delt, delx, M):
+    """
+    Function that constructs the matrix B of eigenvectors as in 5 a)
+    """
+    # construct the non-zero blocks of B
+    B_12 = np.diag(-np.ones(M)* delt)
+    B_21 = q5.getB_21(delt, delx, M)
+
+    # combine the blocks as required
+    B = np.zeros((2*M,2*M))
+    B[M:,:M] = B_21
+    B[:M,M:] = B_12
+    return B
+
+
 ''' 
 Test the step3 function
 '''
@@ -64,3 +80,28 @@ def test_step1(M, N, alpha):
     # Check that the error is within a threshold
     err = VIinvR - VIinvR2
     assert(np.linalg.norm(err) < 1.0e-6)
+
+''' 
+Test the step2 function
+'''
+@pytest.mark.parametrize('M, delt, delx', [(5, 5, 10), (10, 2, 3), (20, 0.5, 0.1)])
+def test_step2(M, delt, delx):
+    np.random.seed(2468*M)
+
+    d1 = np.random.randint(1,10)
+    d2 = np.random.randint(1,10)
+    rk = np.random.randn(2*M)
+
+    # Construct B
+    B = getB(delt, delx, M)
+    I = np.eye(2*M)
+    Mat = d1*I + d2*B
+
+    pq1 = np.linalg.solve(Mat, rk)
+
+    pq2 = q5.step2(d1, d2, delt, delx, rk)
+
+    # Check that the error is within a threshold
+    err = pq1 - pq2
+    assert(np.linalg.norm(err) < 1.0e-6)
+
