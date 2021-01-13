@@ -37,6 +37,20 @@ def getB_21(delt, delx, M):
     B_21 = D + A + A.T
     return B_21
 
+def getB(delt, delx, M):
+    """
+    Function that constructs the matrix B of eigenvectors as in 5 a)
+    """
+    # construct the non-zero blocks of B
+    B_12 = np.diag(-np.ones(M)* delt)
+    B_21 = getB_21(delt, delx, M)
+
+    # combine the blocks as required
+    B = np.zeros((2*M,2*M))
+    B[M:,:M] = B_21
+    B[:M,M:] = B_12
+    return B
+
 def step3(M, N, U, alpha):
     """
     Algorithm for step 3 Q5e)
@@ -107,62 +121,18 @@ def step2(d1, d2, delt, delx, rk):
 """
 ---------------
 """
-def getB(delt, delx, M):
-    """
-    Function that constructs the matrix B of eigenvectors as in 5 a)
-    """
-    # construct the non-zero blocks of B
-    B_12 = np.diag(-np.ones(M)* delt)
-    B_21 = getB_21(delt, delx, M)
-
-    # combine the blocks as required
-    B = np.zeros((2*M,2*M))
-    B[M:,:M] = B_21
-    B[:M,M:] = B_12
-    return B
-
-def getC1a(M, alpha):
-    D1 = np.diag(np.ones(M))
-    D2 = np.diag(-np.ones(M-1), -1)
-    D1[0, M-1] = -alpha
-    C1a = D1 + D2
-    return C1a
-
-M = 4
-N = 3
-alpha = 0.1
-delx = 0.5
-delt = 0.1
 
 
-U = np.arange(2*M*N)+1
-
-# Check step 17 works
-
-# LHS matrix
-C1a = getC1a(N, alpha)
-C2a = C1a.copy()/2
-I = np.eye(2*M)
-B = getB(delt, delx, M)
-Mat = np.kron(C1a, I) + np.kron(C2a, B)
-
-# RHS vector
-r = np.random.randn(2*M)
-pq = U[-2*M:]
-topR = r + alpha * (-I + B/2) @ pq
-R = np.zeros(2*M*N)
-R[:2*M] = topR
-
-# get x via numpy functions
-x = np.linalg.solve(Mat, R)
-
-def eq17(M, N, Uk, alpha, r):
+def eq17(M, N, delx, delt, Uk, alpha, r):
     """
     Algorithm to compute U^(k+1) from U^k as in equation 17
     
-    :param M: space steps
-    :param N: time steps
-    :param Uk: as in the question   
+    :param delx: space steps
+    :param delt: time steps
+    :param M: number of space steps required
+    :param N: number of time steps required
+    :param Uk: as in the question  
+    
     :param alpha: constant in corner of C_1^(alpha) and C_2^(alpha)
     :param r: vector r from Q5a)
 
@@ -204,7 +174,16 @@ def eq17(M, N, Uk, alpha, r):
 
     return Uk1
 
+"""
+M = 4
+N = 3
+alpha = 0.2
+delx = 0.1
+delt = 0.1
+
+# Initial Guess U
 U = np.arange(2*M*N)+1
 
-x2 = eq17(M, N, U, alpha, r)
+x2 = eq17(M, N, delx, delt, Uk, alpha, r)
 np.linalg.norm(Mat @ x2 - R)
+"""
