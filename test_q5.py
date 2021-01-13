@@ -32,6 +32,16 @@ def getC1a(M, alpha):
     C1a = D1 + D2
     return C1a
 
+def getC2a(M, alpha):
+    """
+    Function that constructs the matrix C_2^(alpha) as in 5 b)
+    """
+    D1 = np.diag(np.ones(M))
+    D2 = np.diag(np.ones(M-1), -1)
+    D1[0, M-1] = alpha
+    C2a = (D1 + D2)/2
+    return C2a
+
 ''' 
 Test the step3 function
 '''
@@ -123,7 +133,7 @@ def test_eq17(M, N, alpha):
 
     # Construct the LHS matrix from (17)
     C1a = getC1a(N, alpha)
-    C2a = C1a.copy()/2
+    C2a = getC2a(N, alpha)
     I = np.eye(2*M)
     B = q5.getB(delt, delx, M)
     Mat = np.kron(C1a, I) + np.kron(C2a, B)
@@ -131,7 +141,7 @@ def test_eq17(M, N, alpha):
     # Construct the RHS vector from (17)
     pq = Uk[-2*M:]
     topR = r + alpha * (-I + B/2) @ pq
-    R = np.zeros(2*M*N)
+    R = np.zeros(2*M*N, dtype = 'complex')
     R[:2*M] = topR
 
     # Obtain U^(k+1) using numpy functions
