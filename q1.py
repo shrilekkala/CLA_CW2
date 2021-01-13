@@ -7,8 +7,8 @@ def triA(c, d, m):
 
     :return A: the required matrix A
     """
-    A = np.eye(m) * c
-    D = np.diag(np.ones(m-1) * d, 1)
+    A = np.eye(m, dtype = 'complex') * c
+    D = np.diag(np.ones(m-1, dtype = 'complex') * d, 1)
     A += D + D.T
     return A
 
@@ -22,7 +22,7 @@ def LUtri(c, d, m):
     Returns L and U
     """
     U = triA(c, d, m)
-    L = np.eye(m)
+    L = np.eye(m, dtype = 'complex')
 
     for k in range(m-1):
         L[k+1, k] = U[k+1, k] / U[k, k]
@@ -37,7 +37,7 @@ def forward_sub(L, b):
     Returns y
     """
     m, _ = L.shape
-    y = np.zeros(m)
+    y = np.zeros(m, dtype = 'complex')
 
     y[0] = b[0] / L[0, 0]
     for k in range(1, m):
@@ -53,7 +53,7 @@ def back_sub(U, y):
     Returns x
     """
     m, _ = U.shape
-    x = np.zeros(m)
+    x = np.zeros(m, dtype = 'complex')
 
     x[m-1] = y[m-1] / U[m-1, m-1]
     for k in range(m-2, -1, -1):
@@ -77,10 +77,10 @@ def LU_solve(c, d, m, b, returnLU = False):
     """
     # Initialise matrices L,U and vectors x, y
     U = triA(c, d, m)
-    L = np.eye(m)
+    L = np.eye(m, dtype = 'complex')
 
-    y = np.zeros(m)
-    x = np.zeros(m)
+    y = np.zeros(m, dtype = 'complex')
+    x = np.zeros(m, dtype = 'complex')
 
     # Merged LU factorisation and forward substitution
     y[0] = b[0] / L[0, 0]
