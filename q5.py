@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from q1 import solver_alg
+from q2 import solver_alg
 
 """
 Question 5 f)
@@ -23,6 +23,19 @@ def getD(M, N, alpha, inverse = False):
 
     return D
 
+def getB_21(delt, delx, M):
+    """
+    Function that constructs the B_21 sub-block of matrix B from 5a)
+    """
+    # construct the sub-diagonals and corners
+    A = np.diag(np.ones(M-1)*(- delt / delx), 1)
+    A[0, M-1] = - delt / delx
+
+    # construct the main diagonal
+    D = np.diag(np.ones(M)*(2*delt/delx))
+
+    B_21 = D + A + A.T
+    return B_21
 
 def step3(M, N, U, alpha):
     """
@@ -63,85 +76,33 @@ def step1(M, N, R, alpha):
     return VinvIR
 
 def step2(d1, d2, delt, delx, rk):
+    """
+    Algorithm for step 2 Q5e)
+    Constructs and returns (pk^T, qk^T), i.e. the kth time slice of U hat
+    """    
     M = int(rk.shape[0] / 2)
 
+    # get sub-block B_21 of matrix B
+    B_21 = getB_21(delt, delx, M)
+
+    # split rk into 2 equal length vectors
     rk1 = rk[:M]
     rk2 = rk[M:]
 
+    # get constant c1 and vector b as required
     c1 = (d2*delt)**2 / (delx * d1**2)
     b = d2*B_21@rk1 - d1*rk2
 
-    # get qk from almost tridiagonal system solver from q2
+    # Find qk from almost tridiagonal system solver from q2
     qk = solver_alg(c1, b/(-d1**2))
 
-    # get pk by substitution
+    # Find pk by substitution
     pk = (rk1 - d2 * (- delt) * qk) / d1
 
+    # Join pk and qk into one vector
     pq = np.concatenate((pk, qk))
 
     return pq
-
-def getB_12(delt, M):
-    B_12 = np.diag(-np.ones(M)* delt)
-    return B_12
-
-def getB_21(delt, delx, M):
-    A = np.diag(np.ones(M-1)*(- delt / delx), 1)
-    A[0, M-1] = - delt / delx
-    D = np.diag(np.ones(M)*(2*delt/delx))
-    B_21 = D + A + A.T
-    return B_21
-
-def getB(B_12, B_21):
-    M, _ = B_12.shape
-    B = np.zeros((2*M,2*M))
-    B[M:,:M] = B_21
-    B[:M,M:] = B_12
-    return B
-
-def getT(d1, d2, delt, delx, M):
-    a = -(2*(d2*delt)**2)/delx - d1**2
-    b = ((d2*delt)**2)/delx
-    A = np.diag(np.ones(M-1)*b, 1)
-    A[0, M-1] = b
-    D = np.diag(np.ones(M)*a)
-    T = D + A + A.T
-    return T
-
-M = 5
-delt = 5
-delx = 10
-B_12 = getB_12(delt, M)
-B_21 = getB_21(delt, delx, M)
-B = getB(B_12, B_21)
-I = np.eye(2*M)
-d1 = 2
-d2 = 3
-Mat = d1*I + d2*B
-
-rk = np.random.randn(2*M)
-pq = np.linalg.solve(Mat, rk)
-
-rk1 = rk[:M]
-rk2 = rk[M:]
-Ta = (d2**2) * (-delt) * B_21 - (d1**2) * np.eye(M)
-T = getT(d1, d2, delt, delx, M)
-
-b = d2*B_21@rk1 - d1*rk2
-qk1 = np.linalg.solve(T, b)
-
-c1 = (d2*delt)**2 / (delx * d1**2)
-
-# check
-A = q1.triA(1+2*c1, -c1, M)
-A[0, M-1] = -c1
-A[M-1, 0] = -c1
-T / (-d1**2) - A
-
-
-pq1 = step2(d1, d2, delt, delx, rk)
-
-
 
 
 
