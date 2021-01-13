@@ -118,11 +118,6 @@ def step2(d1, d2, delt, delx, rk):
 
     return pq
  
-"""
----------------
-"""
-
-
 def eq17(M, N, delx, delt, Uk, alpha, r):
     """
     Algorithm to compute U^(k+1) from U^k as in equation 17
@@ -174,16 +169,12 @@ def eq17(M, N, delx, delt, Uk, alpha, r):
 
     return Uk1
 
-"""
 M = 4
 N = 3
 alpha = 0.2
 delx = 0.1
 delt = 0.1
 
-# Initial Guess U
-U = np.arange(2*M*N)+1
-
-x2 = eq17(M, N, delx, delt, Uk, alpha, r)
-np.linalg.norm(Mat @ x2 - R)
-"""
+# Uk -> U(k+1)
+Uk = np.arange(2*M*N)+1
+Uk1 = eq17(M, N, delx, delt, Uk, alpha, r)
