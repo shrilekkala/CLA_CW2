@@ -140,7 +140,7 @@ def eq17(M, N, delx, delt, Uk, alpha, r):
     topR = r + alpha * (-I + B/2) @ pq
 
     # Construct R
-    R = np.zeros(2*M*N)
+    R = np.zeros(2*M*N, dtype = 'complex')
     R[:2*M] = topR
 
     # Apply Step 1
@@ -149,8 +149,9 @@ def eq17(M, N, delx, delt, Uk, alpha, r):
     # Apply Step 2
     x_range = np.arange(N)
     lambdas = 1 - alpha**(1/N) * np.exp((2*(N-1)/N)*np.pi*1j*x_range)
+    mu_s = (1 + alpha**(1/N) * np.exp((2*(N-1)/N)*np.pi*1j*x_range)) / 2
     D1 = np.diag(lambdas)
-    D2 = np.diag(lambdas/2)
+    D2 = np.diag(mu_s)
 
     Uhat = np.zeros(2*M*N, dtype = 'complex')
 
@@ -169,12 +170,46 @@ def eq17(M, N, delx, delt, Uk, alpha, r):
 
     return Uk1
 
+def U_solver_alg(U0, M, N, delx, delt, alpha, r):
+    """
+    Algorithm to compute U iteratively from the initial guess as in equation 17
+    
+    :param U0: initial guess for the solution
+    :param delx: space steps
+    :param delt: time steps
+    :param M: number of space steps required
+    :param N: number of time steps required    
+    :param alpha: constant in corner of C_1^(alpha) and C_2^(alpha)
+    :param r: vector r from Q5a)
+
+    :return Uk1: the solution to (17)
+    """
+    maxits = 1000
+    counter = 0
+    Uk = U0
+
+    while True:
+        counter += 1
+        Uk1 = eq17(M, N, delx, delt, Uk, alpha, r)
+
+        # Check for convergence
+        if np.allclose(Uk, Uk1, rtol = 1e-12) == True:
+            break
+        elif counter > maxits:
+            break
+
+        Uk = Uk1
+    
+    return Uk1, counter
+
+"""
 M = 4
 N = 3
-alpha = 0.2
+alpha = 0.01
 delx = 0.1
 delt = 0.1
+r = np.random.randn(2*M)
 
-# Uk -> U(k+1)
-Uk = np.arange(2*M*N)+1
-Uk1 = eq17(M, N, delx, delt, Uk, alpha, r)
+U0 = np.zeros(2*M*N)
+Un, k = U_solver_alg(U0, M, N, delx, delt, alpha, r)
+"""
