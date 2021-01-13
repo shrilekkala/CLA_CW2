@@ -64,7 +64,7 @@ def solver_alg(c1, b):
     :return x: an m dimensional vector solution
     """
     m = b.size
-    I2 = np.eye(2)
+    I2 = np.eye(2, dtype = 'complex')
 
     # Solve Ty = b via LU the factorisation algorithm and obtain LU
     y, L, U = q1.LU_solve(1+2*c1, -c1, m, b, True)
