@@ -51,25 +51,6 @@ def getB(delt, delx, M):
     B[:M,M:] = B_12
     return B
 
-def step3(M, N, U, alpha):
-    """
-    Algorithm for step 3 Q5e)
-    Constructs and returns [V(x)I]U as in 5 d)
-    """
-    # get block-diagonal matrix D
-    D = getD(M, N, alpha)
-
-    # reshape U
-    Uprime = U.reshape(N, 2*M).T
-
-    # Apply the IFFT algorithm and reshape back
-    Uifft = np.fft.ifft(Uprime).reshape(2*M*N, order='F')
-    
-    # obtain [V(x)I]U by matrix multiplication
-    VIU = D @ Uifft
-
-    return VIU
-
 def step1(M, N, R, alpha):
     """
     Algorithm for step 1 Q5e)
@@ -117,6 +98,25 @@ def step2(d1, d2, delt, delx, rk):
     pq = np.concatenate((pk, qk))
 
     return pq
+ 
+def step3(M, N, U, alpha):
+    """
+    Algorithm for step 3 Q5e)
+    Constructs and returns [V(x)I]U as in 5 d)
+    """
+    # get block-diagonal matrix D
+    D = getD(M, N, alpha)
+
+    # reshape U
+    Uprime = U.reshape(N, 2*M).T
+
+    # Apply the IFFT algorithm and reshape back
+    Uifft = np.fft.ifft(Uprime).reshape(2*M*N, order='F')
+    
+    # obtain [V(x)I]U by matrix multiplication
+    VIU = D @ Uifft
+
+    return VIU
  
 def eq17(M, N, delx, delt, Uk, alpha, r):
     """
