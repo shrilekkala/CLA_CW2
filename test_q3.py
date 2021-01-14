@@ -4,7 +4,7 @@ import pytest
 import q3
 
 ''' 
-Test the qr_factor_tri function from Q2 part c)
+Test the qr_factor_tri function from Q3 part c)
 '''
 @pytest.mark.parametrize('m', [14, 20, 135, 500, 935])
 def test_qr_factor_tri(m):
@@ -34,7 +34,7 @@ def test_qr_factor_tri(m):
     assert(np.linalg.norm(err) < 1.0e-6)
 
 ''' 
-Test the qr_alg_tri function from Q2 part d)
+Test the qr_alg_tri function from Q3 part d)
 '''
 @pytest.mark.parametrize('m', [14, 20, 55, 126, 201])
 def test_qr_alg_tri(m):
@@ -85,7 +85,7 @@ def test_Submatrix_QR_Alg(m):
     assert(np.allclose(evals1, evals2, 1.0e-6))
 
 ''' 
-Test the shifted qr_alg_tri function from Q2 part f)
+Test the shifted qr_alg_tri function from Q3 part f)
 '''
 @pytest.mark.parametrize('m', [14, 20, 55, 126, 201])
 def test_shifted_qr_alg_tri(m):

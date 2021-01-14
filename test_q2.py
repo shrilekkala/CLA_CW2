@@ -6,7 +6,7 @@ import q2
 import numpy as np
 
 ''' 
-Test the solve_algorithm function from Q2 part e)
+Test the solve_algorithm function from Q2 part f)
 '''
 @pytest.mark.parametrize('m', [14, 20, 135, 500, 935])
 def test_solver_alg(m):

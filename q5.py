@@ -7,7 +7,7 @@ Question 5 f)
 """
 def getD(M, N, alpha, inverse = False):
     """
-    Function that constructs the block diagonal matrix D or D inverse from 5d)
+    Function that constructs the diagonal matrix D or D inverse from 5d)
     """
     # construct the coefficients of the blocks
     x = np.arange(N)
@@ -162,7 +162,7 @@ def eq17(M, N, delx, delt, Uk, alpha, r):
         d1 = D1[k,k]
         d2 = D2[k,k]
 
-        # Apply the step2 function
+        # Apply the step2 function for each time slice
         Uhat[k * (2*M) : (k + 1) * (2*M)] = step2(d1, d2, delt, delx, rk)
 
     # Apply Step 3
@@ -183,13 +183,20 @@ def U_solver_alg(U0, M, N, delx, delt, alpha, r):
     :param r: vector r from Q5a)
 
     :return Uk1: the solution to (17)
+    :return counter: the number of iterations performed
     """
-    maxits = 1000
     counter = 0
+
+    # Set a maximum number of iterations
+    maxits = 1000
+
+    # Let U^k be the initial guess U^0
     Uk = U0
 
     while True:
         counter += 1
+        
+        # Get U^(k+1)
         Uk1 = eq17(M, N, delx, delt, Uk, alpha, r)
 
         # Check for convergence
@@ -197,7 +204,8 @@ def U_solver_alg(U0, M, N, delx, delt, alpha, r):
             break
         elif counter > maxits:
             break
-
+        
+        # Update Uk
         Uk = Uk1
     
     return Uk1, counter

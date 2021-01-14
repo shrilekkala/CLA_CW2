@@ -175,6 +175,9 @@ def Submatrix_QR_Alg(A, ApplyShift = False):
 
     :param A: an mxm symmetric, real matrix
     :param shift: if True, apply the shifted QR algorithm
+
+    :return evals: the array of eigenvalues obtained
+    :return total_T_array: the concatenated array of all the T_arrays
     """
     # reduce A to Hessenberg form
     hessenberg(A)
