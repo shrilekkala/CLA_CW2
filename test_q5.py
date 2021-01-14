@@ -1,4 +1,4 @@
-''' test script for q3 '''
+''' test script for q5 '''
 import numpy as np
 import pytest
 import q5
