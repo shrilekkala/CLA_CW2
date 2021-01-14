@@ -277,7 +277,8 @@ def plot_timesteps(M, N, delx, delt, alpha, u_func, w_func):
     return()
 
 """
-Uncomment below to run compute timesteps of the discretisation of the function from the report
+This script obtains the results from Q5 of the report
 """
-# plot_timesteps(10, 251, 1/10, 1/1000, 0.001, u_func, w_func)
-# plot_timesteps(20, 251, 1/20, 1/1000, 0.001, u_func, w_func)
+if __name__ == '__main__':
+    plot_timesteps(10, 251, 1/10, 1/1000, 0.001, u_func, w_func)
+    plot_timesteps(20, 251, 1/20, 1/1000, 0.001, u_func, w_func)
