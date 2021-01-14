@@ -47,9 +47,6 @@ def getC():
     C = C + C.T
     return C
 
-# Store the matrices used for plotting
-matrices_dict = {"A": getA(), "B": getB(), "C": getC(), "G": getG()}
-
 """
 Question 3 c)
 """
@@ -146,10 +143,8 @@ def qr_alg_tri(A, maxit, shift = False, return_T_array = False):
 
         # Check stopping criteria
         if np.abs(Tlist[-1]) < 1.0e-12:
-            # print("Stopped after " + str(its) + " iterations")
             break
         elif its+1 > maxit:
-            print("Maximum number of iterations reached")
             break
     
     if return_T_array:
@@ -164,7 +159,9 @@ def Q3d():
     A1 = getA()
     A2 = A1.copy()
     hessenberg(A2)
+    print("Matrix obtained after applying qr_alg_tri to A:")
     print(qr_alg_tri(A2, 1000))
+    print("Eigenvalues of A:")
     print(np.linalg.eig(A1)[0])
     return
 
@@ -233,14 +230,17 @@ def plots_Q3(ApplyShift = False):
         print("Total number of iterations until termination ["+ textstr + " Algorithm from Q3] : " + str(len(t_array)))
         print("Total number of iterations until termination [pureQR Algorithm]                 : " + str(its))
 
+
 """
-Uncomment the below lines to obtain the results from the report
+This script obtains the results from Q3 of the report
 """
+if __name__ == '__main__':
+    # Store the matrices used for plotting
+    matrices_dict = {"A": getA(), "B": getB(), "C": getC(), "G": getG()}
 
-""" Apply program to matrix A """
-# Q3d()
+    """ Apply program to matrix A """
+    Q3d()
 
-""" Generate plots in 3e), 3f) and 3g) """
-# plots_Q3()
-# plots_Q3(ApplyShift = True)
-
+    """ Generate plots in 3e), 3f) and 3g) """
+    plots_Q3()
+    plots_Q3(ApplyShift = True)
