@@ -20,7 +20,7 @@ def Q2c(c1, m):
     A[m-1, 0] = -c1
 
     # Apply the LU factorisation algorithm
-    exercises6.LU_inplace(A, printsteps = True)
+    LU_inplace(A, printsteps = True)
 
     return
 
@@ -107,7 +107,7 @@ def compare_algs(m):
 
     start_t = time.time()
     # obtain x2 via the solve_LUP function from exercises 7
-    x2 = exercises7.solve_LUP(A.copy(), b)
+    x2 = solve_LUP(A.copy(), b)
     print("Time taken for solve_LUP  : " + str(time.time() - start_t))
 
     return
@@ -115,9 +115,9 @@ def compare_algs(m):
 """
 Question 2 g)
 """
-def get_f(u, w, delx):
+def get_f(u, w, delx, delt):
     """
-    Gets the required vector f given u, w and delta x
+    Gets the required vector f given u, w, delta x and delta t
     """
     u_diff_approx = (np.roll(u, -1) - 2 * u + np.roll(u, 1))/(delx**2)
     w_diff_approx = (np.roll(w, -1) - 2 * w + np.roll(w, 1))/(delx**2)
@@ -154,7 +154,7 @@ def compute_timesteps(M, delt, n, u_func, w_func):
     for k in range(n):
         
         # obtain the w and u at the next time step
-        f = get_f(u, w, delx)
+        f = get_f(u, w, delx, delt)
         new_w = solver_alg(c1, f)
         new_u = u + (delt / 2) * (w + new_w)
 
