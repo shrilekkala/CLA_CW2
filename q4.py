@@ -246,9 +246,8 @@ def get_L():
 
 
 """
-Uncomment the below lines to obtain the results from the report
+This script obtains the results from Q4 of the report
 """
-
-""" Generate results in 4d) """
-# np.random.seed(1024)
-# investigate_GMRES(get_L(), 2, get_plots = True)
+if __name__ == '__main__':
+    np.random.seed(1024)
+    investigate_GMRES(get_L(), 2, get_plots = True)
