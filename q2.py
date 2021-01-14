@@ -96,6 +96,7 @@ def compare_algs(m):
     A = q1.triA(1+2*c1, -c1, m)
     A[0, m-1] = -c1
     A[m-1, 0] = -c1
+    A = np.real(A)
 
     # create a random vector b
     b = np.random.rand(m)
@@ -103,12 +104,12 @@ def compare_algs(m):
     start_t = time.time()
     # obtain x1 via the above solver_alg function
     x1 = solver_alg(c1, b)
-    print("Time taken for solver_alg : " + str(time.time() - start_t))
+    print("Time taken for solver_alg (m = " + str(m) +  "): " + str(time.time() - start_t))
 
     start_t = time.time()
     # obtain x2 via the solve_LUP function from exercises 7
     x2 = solve_LUP(A.copy(), b)
-    print("Time taken for solve_LUP  : " + str(time.time() - start_t))
+    print("Time taken for solve_LUP  (m = " + str(m) +  "): " + str(time.time() - start_t))
 
     return
 
@@ -166,14 +167,12 @@ def compute_timesteps(M, delt, n, u_func, w_func):
         plot_step = 50
         if k % plot_step == 0:
             color = next(plt.gca()._get_lines.prop_cycler)['color']
-            plt.plot(x_vals, new_u, color = color)
+            plt.plot(x_vals, np.real(new_u), color = color)
             plt.plot(x_range, actual_u_vals, ls=':', color = "black")
 
         # update u and w
         u = new_u
         w = new_w
-
-        #print(np.linalg.norm(new_w - actual_w_vals))
     
     plt.title("Plot of u(x,t) against x for different timesteps.   M = " + str(M)+", Delta t = "+str(delt))
     plt.xlabel("x")
@@ -198,8 +197,17 @@ def test2g(M, delt, n):
     plt.show()
 
 """
-Uncomment below to run compute timesteps of the discretisation of the function from the report
+This script obtains the results from Q2 of the report
+[compare_algs(2000) and compare_algs(5000) are commented out as they take a long time to run]
 """
-# test2g(500, 1/1000, 251)
-# test2g(10, 1/1000, 251)
+if __name__ == '__main__':
+    """ Compare algorithms as required in 2f) """
+    compare_algs(500)
+    compare_algs(1000)
+    # compare_algs(2000)
+    # compare_algs(5000)
+
+    """ Compute timesteps of the discretisation of the function from 2g)"""
+    test2g(500, 1/1000, 251)
+    test2g(10, 1/1000, 251)
 
